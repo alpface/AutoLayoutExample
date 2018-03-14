@@ -9,7 +9,7 @@
 #import "NaviActionController.h"
 #import <objc/runtime.h>
 
-#define COLLECTIONVIEW_MARGIN 10.0
+#define CONTAINERVIEW_MARGIN 10.0
 static void *NaviActionControllerKey = &NaviActionControllerKey;
 
 static inline CGSize TextSize(NSString *text,
@@ -48,7 +48,7 @@ static inline CGSize TextSize(NSString *text,
 
 @end
 
-@interface  NaviActionContentView : UIView
+@interface  NaviActionContentView ()
 @property (nonatomic, strong) NSMutableArray<NaviActionButton *> *buttonArray;
 @property (nonatomic, strong) NSMutableArray<NaviActionItem *> *items;
 // item高度
@@ -68,8 +68,7 @@ static inline CGSize TextSize(NSString *text,
 
 
 @interface NaviActionController ()
-
-@property (nonatomic, strong) NaviActionContentView *collectionView;
+@property (nonatomic, strong) NaviActionContentView *containerView;
 @property (nonatomic, strong) UIView *backgroundView;
 @property (nonatomic, assign, getter=isShow) BOOL show;
 @property (nonatomic, strong) NSMutableArray<NSLayoutConstraint *> *viewConstraints;
@@ -83,26 +82,30 @@ static inline CGSize TextSize(NSString *text,
     // Do any additional setup after loading the view.
     [self setupViews];
     
-    [self.collectionView.items removeAllObjects];
-    [self.collectionView.items addObjectsFromArray:self.items];
-    [self.collectionView reloadItems];
+    [self.containerView.items removeAllObjects];
+    [self.containerView.items addObjectsFromArray:self.items];
+    [self.containerView reloadItems];
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)setupViews {
 
     [self.view addSubview:self.backgroundView];
-    [self.view addSubview:self.collectionView];
+    [self.view addSubview:self.containerView];
     self.view.backgroundColor = [UIColor clearColor];
     self.backgroundView.backgroundColor = [UIColor blackColor];
     self.backgroundView.alpha = 0.0;
-    self.collectionView.backgroundColor = [UIColor whiteColor];
-    self.collectionView.layer.cornerRadius = 5.0;
-    self.collectionView.layer.masksToBounds = true;
-//    self.collectionView.itemHeight = 100.0;
-    self.collectionView.maxNumberOfLine = 3;
-    self.collectionView.itemHPadding = 10.0;
-    self.collectionView.itemVPadding = 10.0;
-//    self.collectionView.square = YES;
+    self.containerView.backgroundColor = [UIColor whiteColor];
+    self.containerView.layer.cornerRadius = 5.0;
+    self.containerView.layer.masksToBounds = true;
+//    self.containerView.itemHeight = 100.0;
+    self.containerView.maxNumberOfLine = 3;
+    self.containerView.itemHPadding = 10.0;
+    self.containerView.itemVPadding = 10.0;
+//    self.containerView.square = YES;
     
     [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[backgroundView]|" options:kNilOptions metrics:nil views:@{@"backgroundView": self.backgroundView}]];
     [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[backgroundView]|" options:kNilOptions metrics:nil views:@{@"backgroundView": self.backgroundView}]];
@@ -120,14 +123,14 @@ static inline CGSize TextSize(NSString *text,
     }
     [NSLayoutConstraint deactivateConstraints:self.viewConstraints];
     [self.viewConstraints removeAllObjects];
-    NSDictionary *metrics = @{@"margin": @(COLLECTIONVIEW_MARGIN)};
-    [self.viewConstraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(margin)-[collectionView]-(margin)-|" options:kNilOptions metrics:metrics views:@{@"collectionView": self.collectionView}]];
-    [self.viewConstraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[collectionView]-(margin)-|" options:kNilOptions metrics:metrics views:@{@"collectionView": self.collectionView}]];
+    NSDictionary *metrics = @{@"margin": @(CONTAINERVIEW_MARGIN)};
+    [self.viewConstraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(margin)-[containerView]-(margin)-|" options:kNilOptions metrics:metrics views:@{@"containerView": self.containerView}]];
+    [self.viewConstraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[containerView]-(margin)-|" options:kNilOptions metrics:metrics views:@{@"containerView": self.containerView}]];
     CGFloat topMargin = 50.0;
     if (self.isShow == NO) {
         topMargin = [UIScreen mainScreen].bounds.size.height;
     }
-    [self.viewConstraints addObject:[NSLayoutConstraint constraintWithItem:self.collectionView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationGreaterThanOrEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:topMargin]];
+    [self.viewConstraints addObject:[NSLayoutConstraint constraintWithItem:self.containerView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationGreaterThanOrEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:topMargin]];
     [NSLayoutConstraint activateConstraints:self.viewConstraints];
 }
 
@@ -139,19 +142,19 @@ static inline CGSize TextSize(NSString *text,
 }
 
 
-- (NSLayoutConstraint *)collectionViewTopConstraint {
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"firstItem==%@ AND secondItem==%@ AND firstAttribute==%ld", self.collectionView, self.view, NSLayoutAttributeTop];
+- (NSLayoutConstraint *)containerViewTopConstraint {
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"firstItem==%@ AND secondItem==%@ AND firstAttribute==%ld", self.containerView, self.view, NSLayoutAttributeTop];
     NSLayoutConstraint *constraint = [self.view.constraints filteredArrayUsingPredicate:predicate].firstObject;
     return constraint;
 }
 
-- (NaviActionContentView *)collectionView {
-    if (!_collectionView) {
-        NaviActionContentView *collectionView = [[NaviActionContentView alloc] initWithFrame:CGRectZero];
-        _collectionView = collectionView;
-        collectionView.translatesAutoresizingMaskIntoConstraints = false;
+- (NaviActionContentView *)containerView {
+    if (!_containerView) {
+        NaviActionContentView *containerView = [[NaviActionContentView alloc] initWithFrame:CGRectZero];
+        _containerView = containerView;
+        containerView.translatesAutoresizingMaskIntoConstraints = false;
     }
-    return _collectionView;
+    return _containerView;
 }
 
 - (UIView *)backgroundView {
@@ -163,20 +166,16 @@ static inline CGSize TextSize(NSString *text,
     return _backgroundView;
 }
 
-- (void)showInView:(UIView *)view {
-    self.show = YES;
-    [view addSubview:self.view];
-    self.view.translatesAutoresizingMaskIntoConstraints = false;
+- (void)show {
     
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[viewController]|" options:kNilOptions metrics:nil views:@{@"viewController": self.view}]];
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[viewController]|" options:kNilOptions metrics:nil views:@{@"viewController": self.view}]];
+    self.show = YES;
     
     // 执行此次layoutIfNeeded是为了防止下面的动画把所有的布局都执行了，会导致view从顶部开始出现的问题
 //        [view layoutIfNeeded];
     // 另外一种方案：加入到主队列中执行本次动画
     dispatch_async(dispatch_get_main_queue(), ^{
         self.backgroundView.alpha = 0.3;
-        [self collectionViewTopConstraint].constant = 50.0;
+        [self containerViewTopConstraint].constant = 50.0;
         [UIView animateWithDuration:.3 animations:^{
             [self.view layoutIfNeeded];
         } completion:^(BOOL finished) {
@@ -186,13 +185,13 @@ static inline CGSize TextSize(NSString *text,
 
 - (void)dismiss {
     self.show = NO;
-    [self collectionViewTopConstraint].constant = [UIScreen mainScreen].bounds.size.height;
+    [self containerViewTopConstraint].constant = [UIScreen mainScreen].bounds.size.height;
     [UIView animateWithDuration:.2 animations:^{
         self.backgroundView.alpha = 0.0;
         [self.view layoutIfNeeded];
     } completion:^(BOOL finished) {
-        [self.view.superview removeConstraints:self.view.constraints];
-        [self.view removeFromSuperview];
+//        [self.view.superview removeConstraints:self.view.constraints];
+//        [self.view removeFromSuperview];
     }];
 }
 

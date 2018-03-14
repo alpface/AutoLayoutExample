@@ -15,12 +15,17 @@
 
 @end
 
+@interface  NaviActionContentView : UIView
+
+@end
+
 
 @interface NaviActionController : UIViewController
 
+@property (nonatomic, strong, readonly) NaviActionContentView *containerView;
 @property (nonatomic, strong, readonly) NSMutableArray<NaviActionItem *> *items;
 - (void)addAction:(NaviActionItem *)item;
 
-- (void)showInView:(UIView *)view;
+- (void)show;
 - (void)dismiss;
 @end
