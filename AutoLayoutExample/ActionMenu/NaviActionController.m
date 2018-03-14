@@ -155,7 +155,7 @@ static inline CGSize TextSize(NSString *text,
     [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[viewController]|" options:kNilOptions metrics:nil views:@{@"viewController": self.view}]];
     
     // 执行此次layoutIfNeeded是为了防止下面的动画把所有的布局都执行了，会导致view从顶部开始出现的问题
-    //    [view layoutIfNeeded];
+//        [view layoutIfNeeded];
     // 另外一种方案：加入到主队列中执行本次动画
     dispatch_async(dispatch_get_main_queue(), ^{
         [self collectionViewTopConstraint].constant = 50.0;

@@ -18,28 +18,38 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    self.viewController = [[NaviActionController alloc] init];
-    
-    for (NSInteger i = 0; i < 6; i++) {
-        NaviActionItem *item = NaviActionItem.new;
-        item.title = @(i).stringValue;
-        item.image = [UIImage imageNamed:@"icon_man"];
-        [self.viewController addAction:item];
-    }
     
     
-    [self.viewController showInView:self.view];
-    
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"dismiss" style:UIBarButtonItemStylePlain target:self action:@selector(toggle:)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"show" style:UIBarButtonItemStylePlain target:self action:@selector(toggle:)];
 }
+
+- (NaviActionController *)viewController {
+    if (!_viewController) {
+        _viewController = [[NaviActionController alloc] init];
+        
+        for (NSInteger i = 0; i < 6; i++) {
+            NaviActionItem *item = NaviActionItem.new;
+            item.title = @(i).stringValue;
+            item.image = [UIImage imageNamed:@"icon_man"];
+            [_viewController addAction:item];
+        }
+        
+        
+        [_viewController showInView:self.view];
+    }
+    return _viewController;
+}
+
 - (void)toggle:(UIBarButtonItem *)item {
     if ([item.title isEqualToString:@"dismiss"]) {
         item.title = @"show";
         [self.viewController dismiss];
+        self.viewController = nil;
     }
     else {
         item.title = @"dismiss";
         [self.viewController showInView:self.view];
+        
     }
 }
 
