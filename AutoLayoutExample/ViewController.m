@@ -44,7 +44,6 @@
     if ([item.title isEqualToString:@"dismiss"]) {
         item.title = @"show";
         [self.viewController dismiss];
-        self.viewController = nil;
     }
     else {
         item.title = @"dismiss";

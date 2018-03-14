@@ -70,6 +70,7 @@ static inline CGSize TextSize(NSString *text,
 @interface NaviActionController ()
 
 @property (nonatomic, strong) NaviActionContentView *collectionView;
+@property (nonatomic, strong) UIView *backgroundView;
 @property (nonatomic, assign, getter=isShow) BOOL show;
 @property (nonatomic, strong) NSMutableArray<NSLayoutConstraint *> *viewConstraints;
 @end
@@ -89,8 +90,11 @@ static inline CGSize TextSize(NSString *text,
 
 - (void)setupViews {
 
+    [self.view addSubview:self.backgroundView];
     [self.view addSubview:self.collectionView];
-    self.view.backgroundColor = [UIColor colorWithWhite:0.3 alpha:0.3];
+    self.view.backgroundColor = [UIColor clearColor];
+    self.backgroundView.backgroundColor = [UIColor blackColor];
+    self.backgroundView.alpha = 0.0;
     self.collectionView.backgroundColor = [UIColor whiteColor];
     self.collectionView.layer.cornerRadius = 5.0;
     self.collectionView.layer.masksToBounds = true;
@@ -98,7 +102,10 @@ static inline CGSize TextSize(NSString *text,
     self.collectionView.maxNumberOfLine = 3;
     self.collectionView.itemHPadding = 10.0;
     self.collectionView.itemVPadding = 10.0;
-    self.collectionView.square = YES;
+//    self.collectionView.square = YES;
+    
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[backgroundView]|" options:kNilOptions metrics:nil views:@{@"backgroundView": self.backgroundView}]];
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[backgroundView]|" options:kNilOptions metrics:nil views:@{@"backgroundView": self.backgroundView}]];
 
     [self.view setNeedsUpdateConstraints];
     [self.view updateConstraintsIfNeeded];
@@ -131,6 +138,7 @@ static inline CGSize TextSize(NSString *text,
     return _viewConstraints;
 }
 
+
 - (NSLayoutConstraint *)collectionViewTopConstraint {
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"firstItem==%@ AND secondItem==%@ AND firstAttribute==%ld", self.collectionView, self.view, NSLayoutAttributeTop];
     NSLayoutConstraint *constraint = [self.view.constraints filteredArrayUsingPredicate:predicate].firstObject;
@@ -146,6 +154,15 @@ static inline CGSize TextSize(NSString *text,
     return _collectionView;
 }
 
+- (UIView *)backgroundView {
+    if (!_backgroundView) {
+        UIView *view = [UIView new];
+        view.translatesAutoresizingMaskIntoConstraints = false;
+        _backgroundView = view;
+    }
+    return _backgroundView;
+}
+
 - (void)showInView:(UIView *)view {
     self.show = YES;
     [view addSubview:self.view];
@@ -158,11 +175,11 @@ static inline CGSize TextSize(NSString *text,
 //        [view layoutIfNeeded];
     // 另外一种方案：加入到主队列中执行本次动画
     dispatch_async(dispatch_get_main_queue(), ^{
+        self.backgroundView.alpha = 0.3;
         [self collectionViewTopConstraint].constant = 50.0;
         [UIView animateWithDuration:.3 animations:^{
             [self.view layoutIfNeeded];
         } completion:^(BOOL finished) {
-            
         }];
     });
 }
@@ -171,12 +188,11 @@ static inline CGSize TextSize(NSString *text,
     self.show = NO;
     [self collectionViewTopConstraint].constant = [UIScreen mainScreen].bounds.size.height;
     [UIView animateWithDuration:.2 animations:^{
+        self.backgroundView.alpha = 0.0;
         [self.view layoutIfNeeded];
     } completion:^(BOOL finished) {
-        //            [self.view.superview removeConstraints:self.view.constraints];
+        [self.view.superview removeConstraints:self.view.constraints];
         [self.view removeFromSuperview];
-        [self.view setNeedsUpdateConstraints];
-        [self.view updateConstraintsIfNeeded];
     }];
 }
 
