@@ -23,7 +23,7 @@
     for (NSInteger i = 0; i < 6; i++) {
         NaviActionItem *item = NaviActionItem.new;
         item.title = @(i).stringValue;
-        item.image = [UIImage imageNamed:@"mine_moment_icon"];
+        item.image = [UIImage imageNamed:@"icon_man"];
         [self.viewController addAction:item];
     }
     [self.view addSubview:self.viewController.view];

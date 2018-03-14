@@ -8,8 +8,45 @@
 
 #import "NaviActionController.h"
 
+
+static inline CGSize TextSize(NSString *text,
+                              UIFont *font,
+                              CGSize constrainedSize,
+                              NSLineBreakMode lineBreakMode)
+{
+    if (!text) {
+        return CGSizeZero;
+    }
+    CGSize size;
+    if ([NSAttributedString instancesRespondToSelector:@selector(boundingRectWithSize:options:context:)]) {
+        NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+        paragraphStyle.lineBreakMode = lineBreakMode;
+        NSDictionary *attributes = @{
+                                     NSFontAttributeName: font,
+                                     NSParagraphStyleAttributeName: paragraphStyle,
+                                     };
+        NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:text attributes:attributes];
+        CGSize size = [attributedString boundingRectWithSize:constrainedSize
+                                                     options:(NSStringDrawingUsesDeviceMetrics |
+                                                              NSStringDrawingUsesLineFragmentOrigin |
+                                                              NSStringDrawingUsesFontLeading)
+                                                     context:NULL].size;
+        return CGSizeMake(ceilf(size.width), ceilf(size.height));
+    } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        size = [text sizeWithFont:font constrainedToSize:constrainedSize lineBreakMode:lineBreakMode];
+#pragma clang diagnostic pop
+    }
+    return CGSizeMake(ceilf(size.width), ceilf(size.height));
+}
+
+@interface NaviActionButton : UIButton
+
+@end
+
 @interface  NaviActionContentView : UIView
-@property (nonatomic, strong) NSMutableArray<UIButton *> *buttonArray;
+@property (nonatomic, strong) NSMutableArray<NaviActionButton *> *buttonArray;
 @property (nonatomic, strong) NSMutableArray<NaviActionItem *> *items;
 // item高度
 @property (nonatomic, assign) IBInspectable CGFloat itemHeight;
@@ -20,9 +57,11 @@
 @property (nonatomic, assign) IBInspectable CGFloat itemHPadding;
 @property (nonatomic, assign) IBInspectable CGFloat itemVPadding;
 @property (nonatomic, strong) NSMutableArray<NSLayoutConstraint *> *viewConstraints;
-@property (nonatomic, strong) NSMutableArray<NSMutableArray<UIButton *> *> *lineArray;
+@property (nonatomic, strong) NSMutableArray<NSMutableArray<NaviActionButton *> *> *lineArray;
 - (void)reloadItems;
 @end
+
+
 
 @interface NaviActionController ()
 
@@ -116,7 +155,7 @@
     // 初始化时预备10个子控件做为循环使用的，为了优化，
     // 如果多了就添加，少了就移除
     for (NSInteger i = 0; i < 10; i++) {
-        UIButton *button = [self createCityButton];
+        NaviActionButton *button = [self createButton];
         [self.buttonArray addObject:button];
         [self addSubview:button];
     }
@@ -138,7 +177,7 @@
         // 多余的需要移除
         //        differencesCount = labs(differencesCount);
         while (differencesCount < 0) {
-            UIButton *button = self.buttonArray.lastObject;
+            NaviActionButton *button = self.buttonArray.lastObject;
             [button removeFromSuperview];
             [self.buttonArray removeObject:button];
             differencesCount++;
@@ -147,7 +186,7 @@
     else if (differencesCount > 0) {
         // 缺少控件，就创建
         while (differencesCount > 0) {
-            UIButton *button = [self createCityButton];
+            NaviActionButton *button = [self createButton];
             [self.buttonArray addObject:button];
             [self addSubview:button];
             differencesCount--;
@@ -159,7 +198,7 @@
     
     // 给控件设置值
     for (NSInteger i = 0; i < totalCount; ++i) {
-        UIButton *button = self.buttonArray[i];
+        NaviActionButton *button = self.buttonArray[i];
         button.tag = i;
         NaviActionItem *node = items[i];
         
@@ -178,12 +217,12 @@
     //    self.cellModel.height = size.height;
 }
 
-- (void)buttonClick:(UIButton *)sender {
+- (void)buttonClick:(NaviActionButton *)sender {
     
     
 }
 /// 将buttonArray中的所有按钮，根据maxNumberOfLine按组拆分(按maxNumberOfLine一组进行分组,目的是为了使用AutoLayout布局)
-- (NSMutableArray<NSMutableArray<UIButton *> *> *)lineArray {
+- (NSMutableArray<NSMutableArray<NaviActionButton *> *> *)lineArray {
     if (!_lineArray) {
         _lineArray = @[].mutableCopy;
     }
@@ -202,7 +241,7 @@
         else {
             rowArray = [self.lineArray objectAtIndex:rowIndex];
         }
-        UIButton *btn = self.buttonArray[i];
+        NaviActionButton *btn = self.buttonArray[i];
         [rowArray addObject:btn];
     }
 }
@@ -226,10 +265,10 @@
         NSArray *rowArray = lineArray[i];
         NSMutableString *hFormat = @"".mutableCopy;
         NSDictionary *hSubviewsDict = @{}.mutableCopy;
-        UIButton *previousBtn = nil;
+        NaviActionButton *previousBtn = nil;
         NSString *previousBtnKey = nil;
         for (NSInteger j = 0; j < rowArray.count; j++) {
-            UIButton *btn = rowArray[j];
+            NaviActionButton *btn = rowArray[j];
             NSString *buttonKey = [NSString stringWithFormat:@"button_row_%ld_section_%ld", j, i];
             [hSubviewsDict setValue:btn forKey:buttonKey];
             
@@ -248,7 +287,7 @@
             // 上一行的index
             NSInteger previousRowIndex = i - 1;
             // 取出当前按钮上面的按钮
-            UIButton *dependentTopBtn = nil;
+            NaviActionButton *dependentTopBtn = nil;
             if (previousRowIndex < lineArray.count) {
                 // 取出上一行的所有按钮
                 NSArray *previousRowArray = [lineArray objectAtIndex:previousRowIndex];
@@ -318,14 +357,15 @@
 }
 
 
-- (UIButton *)createCityButton {
-    UIButton *btn = [UIButton new];
+- (NaviActionButton *)createButton {
+    NaviActionButton *btn = [NaviActionButton new];
     btn.translatesAutoresizingMaskIntoConstraints = NO;
-    [btn setTitle:@"北京" forState:UIControlStateNormal];
     [btn setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+    btn.imageView.contentMode = UIViewContentModeScaleAspectFit;
 //    btn.layer.cornerRadius = 4.0;
 //    btn.layer.borderColor = [UIColor colorWithRed:220/255.0 green:220/255.0 blue:229/255.0 alpha:1.0].CGColor;
     btn.titleLabel.font = [UIFont systemFontOfSize:15.0];
+    btn.titleLabel.textAlignment = NSTextAlignmentCenter;
 //    btn.layer.borderWidth = 1.0;
 //    btn.layer.masksToBounds = YES;
     [btn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
@@ -360,5 +400,46 @@
     }
     return _viewConstraints;
 }
+
+@end
+
+@implementation NaviActionButton {
+    CGSize _titleLabelSize;
+}
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.titleLabel.textAlignment = NSTextAlignmentCenter;
+        self.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    }
+    return self;
+}
+
+
+// 图片太大，文本显示不出来，控制button中image的尺寸
+// imageRectForContentRect:和titleRectForContentRect:不能互相调用self.imageView和self.titleLael,不然会死循环
+- (CGRect)imageRectForContentRect:(CGRect)bounds {
+    if (CGSizeEqualToSize(_titleLabelSize, CGSizeZero)) {
+        return CGRectMake(0.0, 0.0, bounds.size.width, bounds.size.height);
+    }
+    return CGRectMake(0.0, 0.0, bounds.size.width, bounds.size.height-_titleLabelSize.height);
+}
+
+- (CGRect)titleRectForContentRect:(CGRect)bounds {
+    if (self.imageView.image) {
+        return CGRectMake(0.0, self.imageView.bounds.size.height, bounds.size.width, bounds.size.height-self.imageView.bounds.size.height);
+    }
+    return CGRectMake(0.0, 0.0, bounds.size.width, bounds.size.height);
+    
+}
+
+- (void)setTitle:(NSString *)title forState:(UIControlState)state {
+    [super setTitle:title forState:state];
+    UILabel *titleLabel = self.titleLabel;
+    _titleLabelSize = TextSize(title, titleLabel.font, CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX), titleLabel.lineBreakMode);
+}
+
 
 @end
