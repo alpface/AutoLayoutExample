@@ -8,6 +8,7 @@
 
 #import "NaviActionController.h"
 
+#define COLLECTIONVIEW_MARGIN 10.0
 
 static inline CGSize TextSize(NSString *text,
                               UIFont *font,
@@ -84,14 +85,19 @@ static inline CGSize TextSize(NSString *text,
 
 - (void)setupViews {
     [self.view addSubview:self.collectionView];
+    self.view.backgroundColor = [UIColor colorWithWhite:0.3 alpha:0.3];
+    self.collectionView.backgroundColor = [UIColor whiteColor];
+    self.collectionView.layer.cornerRadius = 5.0;
+    self.collectionView.layer.masksToBounds = true;
 //    self.collectionView.itemHeight = 100.0;
     self.collectionView.maxNumberOfLine = 3;
     self.collectionView.itemHPadding = 10.0;
     self.collectionView.itemVPadding = 10.0;
     self.collectionView.square = YES;
     
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(5.0)-[collectionView]-(5.0)-|" options:kNilOptions metrics:nil views:@{@"collectionView": self.collectionView}]];
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=50.0)-[collectionView]-(5.0)-|" options:kNilOptions metrics:nil views:@{@"collectionView": self.collectionView}]];
+    NSDictionary *metrics = @{@"margin": @(COLLECTIONVIEW_MARGIN)};
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(margin)-[collectionView]-(margin)-|" options:kNilOptions metrics:metrics views:@{@"collectionView": self.collectionView}]];
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=50.0)-[collectionView]-(margin)-|" options:kNilOptions metrics:metrics views:@{@"collectionView": self.collectionView}]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientation:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
 }
 
