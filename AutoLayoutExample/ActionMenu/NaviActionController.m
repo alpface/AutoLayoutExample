@@ -166,6 +166,14 @@ static inline CGSize TextSize(NSString *text,
     return _backgroundView;
 }
 
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self dismiss];
+}
+
+////////////////////////////////////////////////////////////////////////
+#pragma mark -
+////////////////////////////////////////////////////////////////////////
+
 - (void)show {
     
     self.show = YES;

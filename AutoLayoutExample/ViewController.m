@@ -12,7 +12,6 @@
 @interface ViewController ()
 @property (nonatomic, strong) NaviActionController *viewController;
 @property (nonatomic, strong) UIView *leftView;
-@property (nonatomic, weak) NSLayoutConstraint *leftViewWidthConstraint;
 @end
 
 @implementation ViewController
@@ -46,7 +45,9 @@
         UIView *leftView = [UIView new];
         leftView.translatesAutoresizingMaskIntoConstraints = false;
         _leftView = leftView;
-        leftView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.5];
+        leftView.backgroundColor = [[UIColor yellowColor] colorWithAlphaComponent:0.5];
+        leftView.layer.cornerRadius = 5.0;
+        leftView.layer.masksToBounds = YES;
     }
     return _leftView;
 }
@@ -67,6 +68,7 @@
     [self.view addSubview:self.viewController.view];
     [self.view addSubview:self.leftView];
     self.viewController.view.translatesAutoresizingMaskIntoConstraints = false;
+    self.view.backgroundColor = [UIColor blueColor];
     
     CGFloat padding = 10.0;
     CGFloat leftViewWidth = 35.0;
@@ -75,13 +77,10 @@
         leftViewWidth = 0.0;
     }
     
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(padding)-[leftView]-(padding)-[viewController]-(0.0)-|" options:kNilOptions metrics:@{@"padding": @(padding)} views:@{@"viewController": self.viewController.view, @"leftView": self.leftView}]];
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(padding)-[leftView(==leftViewWidth)]-(padding)-[viewController]-(0.0)-|" options:kNilOptions metrics:@{@"padding": @(padding), @"leftViewWidth": @(leftViewWidth)} views:@{@"viewController": self.viewController.view, @"leftView": self.leftView}]];
     [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[viewController]|" options:kNilOptions metrics:nil views:@{@"viewController": self.viewController.view}]];
     [NSLayoutConstraint constraintWithItem:self.leftView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.viewController.containerView attribute:NSLayoutAttributeTop multiplier:1.0 constant:0.0].active = YES;
     [NSLayoutConstraint constraintWithItem:self.leftView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.viewController.containerView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0.0].active = YES;
-    NSLayoutConstraint *leftViewWidthConstraint = [NSLayoutConstraint constraintWithItem:self.leftView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:leftViewWidth];
-    leftViewWidthConstraint.active = YES;
-    _leftViewWidthConstraint = leftViewWidthConstraint;
     
      [self updateLeftViewConstraints];
 }
@@ -95,6 +94,12 @@
 - (NSLayoutConstraint *)leftViewRightConstraint {
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"firstItem==%@ AND secondItem==%@ AND firstAttribute==%ld", self.viewController.view, self.leftView, NSLayoutAttributeLeading];
     NSLayoutConstraint *constraint = [self.view.constraints filteredArrayUsingPredicate:predicate].firstObject;
+    return constraint;
+}
+
+- (NSLayoutConstraint *)leftViewWidthConstraint {
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"firstItem==%@ AND firstAttribute==%ld", self.leftView, NSLayoutAttributeWidth];
+    NSLayoutConstraint *constraint = [self.leftView.constraints filteredArrayUsingPredicate:predicate].firstObject;
     return constraint;
 }
 
