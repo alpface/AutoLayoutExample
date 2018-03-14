@@ -7,10 +7,11 @@
 //
 
 #import "NaviActionController.h"
-#import <objc/runtime.h>
 
 #define CONTAINERVIEW_MARGIN 10.0
-static void *NaviActionControllerKey = &NaviActionControllerKey;
+#define CONTAINERVIEW_TOP_MAX_MARGIN (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation) ? 75.0 : 55.0)
+
+#define CONTAINERVIEW_MAX_ITEM_COUNT (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation) ? 3 : 5)
 
 static inline CGSize TextSize(NSString *text,
                               UIFont *font,
@@ -53,7 +54,7 @@ static inline CGSize TextSize(NSString *text,
 @property (nonatomic, strong) NSMutableArray<NaviActionItem *> *items;
 // item高度
 @property (nonatomic, assign) IBInspectable CGFloat itemHeight;
-/// 每行item的个数, 此方法会根据设置的间距itemHPadding值，自适应item的宽度
+/// 每行item的个数, 此方法会根据设置的间距itemHPadding值，自适应item的宽度, 最小为1
 @property (nonatomic, assign) IBInspectable NSUInteger maxNumberOfLine;
 /// 正方形，设置此属性后，宽高相同
 /// @note 当设置itemHeight时，且square==YES 则宽度=高度
@@ -62,6 +63,7 @@ static inline CGSize TextSize(NSString *text,
 @property (nonatomic, assign) IBInspectable CGFloat itemVPadding;
 @property (nonatomic, strong) NSMutableArray<NSLayoutConstraint *> *viewConstraints;
 @property (nonatomic, strong) NSMutableArray<NSMutableArray<NaviActionButton *> *> *lineArray;
+@property (nonatomic, copy) void (^ buttonActionBlock)(NaviActionItem *item);
 - (void)reloadItems;
 @end
 
@@ -101,10 +103,11 @@ static inline CGSize TextSize(NSString *text,
     self.containerView.backgroundColor = [UIColor whiteColor];
     self.containerView.layer.cornerRadius = 5.0;
     self.containerView.layer.masksToBounds = true;
-//    self.containerView.itemHeight = 100.0;
-    self.containerView.maxNumberOfLine = 3;
+    self.containerView.maxNumberOfLine = CONTAINERVIEW_MAX_ITEM_COUNT;
     self.containerView.itemHPadding = 10.0;
     self.containerView.itemVPadding = 10.0;
+    // 设置这两个属性会导致屏幕旋转时，containerView的高度会超出父视图
+//    self.containerView.itemHeight = 100.0;
 //    self.containerView.square = YES;
     
     [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[backgroundView]|" options:kNilOptions metrics:nil views:@{@"backgroundView": self.backgroundView}]];
@@ -126,13 +129,17 @@ static inline CGSize TextSize(NSString *text,
     NSDictionary *metrics = @{@"margin": @(CONTAINERVIEW_MARGIN)};
     [self.viewConstraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(margin)-[containerView]-(margin)-|" options:kNilOptions metrics:metrics views:@{@"containerView": self.containerView}]];
     [self.viewConstraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[containerView]-(margin)-|" options:kNilOptions metrics:metrics views:@{@"containerView": self.containerView}]];
-    CGFloat topMargin = 50.0;
+    CGFloat topMargin = CONTAINERVIEW_TOP_MAX_MARGIN;
     if (self.isShow == NO) {
         topMargin = [UIScreen mainScreen].bounds.size.height;
     }
     [self.viewConstraints addObject:[NSLayoutConstraint constraintWithItem:self.containerView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationGreaterThanOrEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:topMargin]];
     [NSLayoutConstraint activateConstraints:self.viewConstraints];
 }
+
+////////////////////////////////////////////////////////////////////////
+#pragma mark - Lazy
+////////////////////////////////////////////////////////////////////////
 
 - (NSMutableArray<NSLayoutConstraint *> *)viewConstraints {
     if (!_viewConstraints) {
@@ -153,6 +160,13 @@ static inline CGSize TextSize(NSString *text,
         NaviActionContentView *containerView = [[NaviActionContentView alloc] initWithFrame:CGRectZero];
         _containerView = containerView;
         containerView.translatesAutoresizingMaskIntoConstraints = false;
+        __weak typeof(&*self) weakSelf = self;
+        containerView.buttonActionBlock = ^(NaviActionItem *item) {
+            __strong typeof(&*weakSelf) self = weakSelf;
+            if (self.delegate && [self.delegate respondsToSelector:@selector(naviActionController:didClickItem:)]) {
+                [self.delegate naviActionController:self didClickItem:item];
+            }
+        };
     }
     return _containerView;
 }
@@ -166,7 +180,11 @@ static inline CGSize TextSize(NSString *text,
     return _backgroundView;
 }
 
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+////////////////////////////////////////////////////////////////////////
+#pragma mark -
+////////////////////////////////////////////////////////////////////////
+
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     [self dismiss];
 }
 
@@ -183,10 +201,13 @@ static inline CGSize TextSize(NSString *text,
     // 另外一种方案：加入到主队列中执行本次动画
     dispatch_async(dispatch_get_main_queue(), ^{
         self.backgroundView.alpha = 0.3;
-        [self containerViewTopConstraint].constant = 50.0;
-        [UIView animateWithDuration:.3 animations:^{
+        [self containerViewTopConstraint].constant = CONTAINERVIEW_TOP_MAX_MARGIN;
+        [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
             [self.view layoutIfNeeded];
         } completion:^(BOOL finished) {
+            if (self.delegate && [self.delegate respondsToSelector:@selector(naviActionControllerDidShow:)]) {
+                [self.delegate naviActionControllerDidShow:self];
+            }
         }];
     });
 }
@@ -194,12 +215,13 @@ static inline CGSize TextSize(NSString *text,
 - (void)dismiss {
     self.show = NO;
     [self containerViewTopConstraint].constant = [UIScreen mainScreen].bounds.size.height;
-    [UIView animateWithDuration:.2 animations:^{
+    [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
         self.backgroundView.alpha = 0.0;
         [self.view layoutIfNeeded];
     } completion:^(BOOL finished) {
-//        [self.view.superview removeConstraints:self.view.constraints];
-//        [self.view removeFromSuperview];
+        if (self.delegate && [self.delegate respondsToSelector:@selector(naviActionControllerDidDismiss:)]) {
+            [self.delegate naviActionControllerDidDismiss:self];
+        }
     }];
 }
 
@@ -207,6 +229,11 @@ static inline CGSize TextSize(NSString *text,
 #pragma mark - Notify
 ////////////////////////////////////////////////////////////////////////
 - (void)didChangeStatusBarOrientation:(NSNotification *)notif {
+    NSInteger maxCount = CONTAINERVIEW_MAX_ITEM_COUNT;
+    if (maxCount != self.containerView.maxNumberOfLine) {
+        self.containerView.maxNumberOfLine = maxCount;
+        [self.containerView reloadItems];
+    }
     [self.view setNeedsUpdateConstraints];
     [self.view updateConstraintsIfNeeded];
 }
@@ -253,6 +280,7 @@ static inline CGSize TextSize(NSString *text,
     // 如果多了就添加，少了就移除
     for (NSInteger i = 0; i < 10; i++) {
         NaviActionButton *button = [self createButton];
+        button.tag = i;
         [self.buttonArray addObject:button];
         [self addSubview:button];
     }
@@ -314,8 +342,14 @@ static inline CGSize TextSize(NSString *text,
     //    self.cellModel.height = size.height;
 }
 
+////////////////////////////////////////////////////////////////////////
+#pragma mark - Actions
+////////////////////////////////////////////////////////////////////////
+
 - (void)buttonClick:(NaviActionButton *)sender {
-    
+    if (self.buttonActionBlock) {
+        self.buttonActionBlock(self.items[sender.tag]);
+    }
     
 }
 /// 将buttonArray中的所有按钮，根据maxNumberOfLine按组拆分(按maxNumberOfLine一组进行分组,目的是为了使用AutoLayout布局)
@@ -324,6 +358,10 @@ static inline CGSize TextSize(NSString *text,
         _lineArray = @[].mutableCopy;
     }
     return _lineArray;
+}
+
+- (NSUInteger)maxNumberOfLine {
+    return MAX(1, _maxNumberOfLine);
 }
 
 - (void)updatelineArray {
@@ -445,36 +483,17 @@ static inline CGSize TextSize(NSString *text,
 }
 
 
-/// 每行paddingView的数量
-- (NSUInteger)paddingViewCountOfLine:(NSUInteger)line {
-    // 获取这行item的数据
-    NSArray *rowArray = self.lineArray[line];
-    NSUInteger paddingCoutOfline = rowArray.count + 1;
-    return paddingCoutOfline;
-}
-
-
 - (NaviActionButton *)createButton {
     NaviActionButton *btn = [NaviActionButton new];
     btn.translatesAutoresizingMaskIntoConstraints = NO;
     [btn setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
     btn.imageView.contentMode = UIViewContentModeScaleAspectFit;
-//    btn.layer.cornerRadius = 4.0;
-//    btn.layer.borderColor = [UIColor colorWithRed:220/255.0 green:220/255.0 blue:229/255.0 alpha:1.0].CGColor;
-    btn.titleLabel.font = [UIFont systemFontOfSize:15.0];
+    btn.titleLabel.font = [UIFont systemFontOfSize:28.0];
     btn.titleLabel.textAlignment = NSTextAlignmentCenter;
-//    btn.layer.borderWidth = 1.0;
-//    btn.layer.masksToBounds = YES;
     [btn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     return btn;
 }
 
-- (UIView *)createPaddingView {
-    UIView *paddingView = [UIView new];
-    paddingView.translatesAutoresizingMaskIntoConstraints = NO;
-    paddingView.hidden = YES;
-    return paddingView;
-}
 
 - (NSMutableArray *)buttonArray {
     if (!_buttonArray) {

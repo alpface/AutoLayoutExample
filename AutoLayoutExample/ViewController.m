@@ -9,7 +9,7 @@
 #import "ViewController.h"
 #import "NaviActionController.h"
 
-@interface ViewController ()
+@interface ViewController () <NaviActionControllerDelegate>
 @property (nonatomic, strong) NaviActionController *viewController;
 @property (nonatomic, strong) UIView *leftView;
 @end
@@ -24,13 +24,17 @@
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"show" style:UIBarButtonItemStylePlain target:self action:@selector(toggle:)];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientation:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self.viewController show];
+    });
 }
 
 - (NaviActionController *)viewController {
     if (!_viewController) {
         _viewController = [[NaviActionController alloc] init];
-        
-        for (NSInteger i = 0; i < 6; i++) {
+        _viewController.delegate = self;
+        for (NSInteger i = 0; i < 18; i++) {
             NaviActionItem *item = NaviActionItem.new;
             item.title = @(i).stringValue;
             item.image = [UIImage imageNamed:@"icon_man"];
@@ -68,7 +72,6 @@
     [self.view addSubview:self.viewController.view];
     [self.view addSubview:self.leftView];
     self.viewController.view.translatesAutoresizingMaskIntoConstraints = false;
-    self.view.backgroundColor = [UIColor blueColor];
     
     CGFloat padding = 10.0;
     CGFloat leftViewWidth = 35.0;
@@ -122,6 +125,22 @@
             [self.view layoutIfNeeded];
         }];
     });
+}
+
+////////////////////////////////////////////////////////////////////////
+#pragma mark - NaviActionControllerDelegate
+////////////////////////////////////////////////////////////////////////
+
+- (void)naviActionController:(NaviActionController *)controller didClickItem:(NaviActionItem *)item {
+    
+}
+
+- (void)naviActionControllerDidDismiss:(NaviActionController *)controller {
+    self.navigationItem.rightBarButtonItem.title = @"show";
+}
+
+- (void)naviActionControllerDidShow:(NaviActionController *)controller {
+    self.navigationItem.rightBarButtonItem.title = @"dismiss";
 }
 
 - (void)didReceiveMemoryWarning {
