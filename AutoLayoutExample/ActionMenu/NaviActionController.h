@@ -21,4 +21,6 @@
 @property (nonatomic, strong, readonly) NSMutableArray<NaviActionItem *> *items;
 - (void)addAction:(NaviActionItem *)item;
 
+- (void)showInView:(UIView *)view;
+- (void)dismiss;
 @end

@@ -26,12 +26,22 @@
         item.image = [UIImage imageNamed:@"icon_man"];
         [self.viewController addAction:item];
     }
-    [self.view addSubview:self.viewController.view];
-    self.viewController.view.translatesAutoresizingMaskIntoConstraints = false;
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[viewController]|" options:kNilOptions metrics:nil views:@{@"viewController": self.viewController.view}]];
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[viewController]|" options:kNilOptions metrics:nil views:@{@"viewController": self.viewController.view}]];
+    
+    
+    [self.viewController showInView:self.view];
+    
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"dismiss" style:UIBarButtonItemStylePlain target:self action:@selector(toggle:)];
 }
-
+- (void)toggle:(UIBarButtonItem *)item {
+    if ([item.title isEqualToString:@"dismiss"]) {
+        item.title = @"show";
+        [self.viewController dismiss];
+    }
+    else {
+        item.title = @"dismiss";
+        [self.viewController showInView:self.view];
+    }
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

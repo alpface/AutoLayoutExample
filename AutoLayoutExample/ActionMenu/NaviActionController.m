@@ -7,8 +7,10 @@
 //
 
 #import "NaviActionController.h"
+#import <objc/runtime.h>
 
 #define COLLECTIONVIEW_MARGIN 10.0
+static void *NaviActionControllerKey = &NaviActionControllerKey;
 
 static inline CGSize TextSize(NSString *text,
                               UIFont *font,
@@ -54,6 +56,7 @@ static inline CGSize TextSize(NSString *text,
 /// 每行item的个数, 此方法会根据设置的间距itemHPadding值，自适应item的宽度
 @property (nonatomic, assign) IBInspectable NSUInteger maxNumberOfLine;
 /// 正方形，设置此属性后，宽高相同
+/// @note 当设置itemHeight时，且square==YES 则宽度=高度
 @property (assign, nonatomic, getter = isSquare) BOOL square;
 @property (nonatomic, assign) IBInspectable CGFloat itemHPadding;
 @property (nonatomic, assign) IBInspectable CGFloat itemVPadding;
@@ -67,7 +70,8 @@ static inline CGSize TextSize(NSString *text,
 @interface NaviActionController ()
 
 @property (nonatomic, strong) NaviActionContentView *collectionView;
-
+@property (nonatomic, assign, getter=isShow) BOOL show;
+@property (nonatomic, strong) NSMutableArray<NSLayoutConstraint *> *viewConstraints;
 @end
 
 
@@ -84,6 +88,7 @@ static inline CGSize TextSize(NSString *text,
 }
 
 - (void)setupViews {
+
     [self.view addSubview:self.collectionView];
     self.view.backgroundColor = [UIColor colorWithWhite:0.3 alpha:0.3];
     self.collectionView.backgroundColor = [UIColor whiteColor];
@@ -94,13 +99,43 @@ static inline CGSize TextSize(NSString *text,
     self.collectionView.itemHPadding = 10.0;
     self.collectionView.itemVPadding = 10.0;
     self.collectionView.square = YES;
-    
-    NSDictionary *metrics = @{@"margin": @(COLLECTIONVIEW_MARGIN)};
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(margin)-[collectionView]-(margin)-|" options:kNilOptions metrics:metrics views:@{@"collectionView": self.collectionView}]];
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=50.0)-[collectionView]-(margin)-|" options:kNilOptions metrics:metrics views:@{@"collectionView": self.collectionView}]];
+
+    [self.view setNeedsUpdateConstraints];
+    [self.view updateConstraintsIfNeeded];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientation:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
+
 }
 
+- (void)updateViewConstraints {
+    [super updateViewConstraints];
+    if (self.view.superview == nil) {
+        return;
+    }
+    [NSLayoutConstraint deactivateConstraints:self.viewConstraints];
+    [self.viewConstraints removeAllObjects];
+    NSDictionary *metrics = @{@"margin": @(COLLECTIONVIEW_MARGIN)};
+    [self.viewConstraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(margin)-[collectionView]-(margin)-|" options:kNilOptions metrics:metrics views:@{@"collectionView": self.collectionView}]];
+    [self.viewConstraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[collectionView]-(margin)-|" options:kNilOptions metrics:metrics views:@{@"collectionView": self.collectionView}]];
+    CGFloat topMargin = 50.0;
+    if (self.isShow == NO) {
+        topMargin = [UIScreen mainScreen].bounds.size.height;
+    }
+    [self.viewConstraints addObject:[NSLayoutConstraint constraintWithItem:self.collectionView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationGreaterThanOrEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:topMargin]];
+    [NSLayoutConstraint activateConstraints:self.viewConstraints];
+}
+
+- (NSMutableArray<NSLayoutConstraint *> *)viewConstraints {
+    if (!_viewConstraints) {
+        _viewConstraints = @[].mutableCopy;
+    }
+    return _viewConstraints;
+}
+
+- (NSLayoutConstraint *)collectionViewTopConstraint {
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"firstItem==%@ AND secondItem==%@ AND firstAttribute==%ld", self.collectionView, self.view, NSLayoutAttributeTop];
+    NSLayoutConstraint *constraint = [self.view.constraints filteredArrayUsingPredicate:predicate].firstObject;
+    return constraint;
+}
 
 - (NaviActionContentView *)collectionView {
     if (!_collectionView) {
@@ -111,13 +146,46 @@ static inline CGSize TextSize(NSString *text,
     return _collectionView;
 }
 
+- (void)showInView:(UIView *)view {
+    self.show = YES;
+    [view addSubview:self.view];
+    self.view.translatesAutoresizingMaskIntoConstraints = false;
+    
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[viewController]|" options:kNilOptions metrics:nil views:@{@"viewController": self.view}]];
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[viewController]|" options:kNilOptions metrics:nil views:@{@"viewController": self.view}]];
+    
+    // 执行此次layoutIfNeeded是为了防止下面的动画把所有的布局都执行了，会导致view从顶部开始出现的问题
+    //    [view layoutIfNeeded];
+    // 另外一种方案：加入到主队列中执行本次动画
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self collectionViewTopConstraint].constant = 50.0;
+        [UIView animateWithDuration:.3 animations:^{
+            [self.view layoutIfNeeded];
+        } completion:^(BOOL finished) {
+            
+        }];
+    });
+}
 
+- (void)dismiss {
+    self.show = NO;
+    [self collectionViewTopConstraint].constant = [UIScreen mainScreen].bounds.size.height;
+    [UIView animateWithDuration:.2 animations:^{
+        [self.view layoutIfNeeded];
+    } completion:^(BOOL finished) {
+        //            [self.view.superview removeConstraints:self.view.constraints];
+        [self.view removeFromSuperview];
+        [self.view setNeedsUpdateConstraints];
+        [self.view updateConstraintsIfNeeded];
+    }];
+}
 
 ////////////////////////////////////////////////////////////////////////
 #pragma mark - Notify
 ////////////////////////////////////////////////////////////////////////
 - (void)didChangeStatusBarOrientation:(NSNotification *)notif {
-
+    [self.view setNeedsUpdateConstraints];
+    [self.view updateConstraintsIfNeeded];
 }
 
 
