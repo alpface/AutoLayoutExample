@@ -74,12 +74,13 @@
             // 基于速度和速度因素计算一个终点
             float slideFactor = 0.1 * slideMult;
             CGPoint finalPoint = CGPointMake(panViewCenter.x + (velocity.x * slideFactor),  panViewCenter.y + (velocity.y * slideFactor));
-            [UIView animateWithDuration:0.30 animations:^{
+            [UIView animateWithDuration:0.30 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
                 /// @note: 由于此处是更新视图的中心点坐标，通过AutoLayout的约束不会受影响，所以在下一次重新布局时(比如执行layoutIfNeeded)时，中心点坐标将会被恢复为约束时的布局
                 pan.view.center = finalPoint;
+             
             } completion:^(BOOL finished) {
                 // 手势结束时恢复布局
-                [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.3 initialSpringVelocity:10.0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
+                [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.5 initialSpringVelocity:20.5 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
                     [self.view setNeedsLayout];
                     [self.view layoutIfNeeded];
                 } completion:^(BOOL finished) {
