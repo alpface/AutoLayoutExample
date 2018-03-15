@@ -9,6 +9,7 @@
 #import "ViewController.h"
 #import "NaviViewController.h"
 #import "DragViewController.h"
+#import "LabelViewController.h"
 
 @interface AutoLayoutExampleItem : NSObject
 
@@ -37,6 +38,7 @@
     self.tableArray = @[
                         [[AutoLayoutExampleItem alloc] initWithTitle:@"Navi action menu" exampleClass:[NaviViewController class]],
                         [[AutoLayoutExampleItem alloc] initWithTitle:@"Drag" exampleClass:[DragViewController class]],
+                        [[AutoLayoutExampleItem alloc] initWithTitle:@"Label Text" exampleClass:[LabelViewController class]]
                         ].mutableCopy;
     
     [self.tableView reloadData];

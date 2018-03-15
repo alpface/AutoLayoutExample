@@ -16,6 +16,7 @@
 		D0AF177F2059163400D7A460 /* NaviActionController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0AF177E2059163300D7A460 /* NaviActionController.m */; };
 		D0BE5A32205A3215006CE5EE /* NaviViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BE5A31205A3215006CE5EE /* NaviViewController.m */; };
 		D0BE5A35205A347D006CE5EE /* DragViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BE5A34205A347D006CE5EE /* DragViewController.m */; };
+		D0BE5A5A205A4972006CE5EE /* LabelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BE5A59205A4972006CE5EE /* LabelViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,8 @@
 		D0BE5A31205A3215006CE5EE /* NaviViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NaviViewController.m; sourceTree = "<group>"; };
 		D0BE5A33205A347D006CE5EE /* DragViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragViewController.h; sourceTree = "<group>"; };
 		D0BE5A34205A347D006CE5EE /* DragViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DragViewController.m; sourceTree = "<group>"; };
+		D0BE5A58205A4972006CE5EE /* LabelViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LabelViewController.h; sourceTree = "<group>"; };
+		D0BE5A59205A4972006CE5EE /* LabelViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LabelViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +93,8 @@
 				D0BE5A31205A3215006CE5EE /* NaviViewController.m */,
 				D0BE5A33205A347D006CE5EE /* DragViewController.h */,
 				D0BE5A34205A347D006CE5EE /* DragViewController.m */,
+				D0BE5A58205A4972006CE5EE /* LabelViewController.h */,
+				D0BE5A59205A4972006CE5EE /* LabelViewController.m */,
 			);
 			name = Example;
 			sourceTree = "<group>";
@@ -170,6 +175,7 @@
 				D0AF1768205915EF00D7A460 /* AppDelegate.m in Sources */,
 				D0BE5A32205A3215006CE5EE /* NaviViewController.m in Sources */,
 				D0BE5A35205A347D006CE5EE /* DragViewController.m in Sources */,
+				D0BE5A5A205A4972006CE5EE /* LabelViewController.m in Sources */,
 				D0AF177F2059163400D7A460 /* NaviActionController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

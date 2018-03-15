@@ -34,9 +34,10 @@
     [self.button2 addGestureRecognizer:pan2];
     
     CGFloat padding = 80.0;
-    NSDictionary *viewDict = @{@"button1": self.button1, @"button2": self.button2};
+    id topLayoutGuide = self.topLayoutGuide;
+    NSDictionary *viewDict = @{@"button1": self.button1, @"button2": self.button2, @"topLayoutGuide": topLayoutGuide};
     // 添加这两个button相对父控件的垂直约束，并且这两个控件的中心点x轴对齐NSLayoutFormatAlignAllCenterX(也就是垂直对齐)
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(==padding)-[button1]-(==padding)-[button2(>=0)]->=0-|" options:NSLayoutFormatAlignAllCenterX metrics:@{@"padding": @(padding)} views:viewDict]];
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[topLayoutGuide]-(10.0)-[button1]-(==padding)-[button2(>=0)]->=0-|" options:NSLayoutFormatAlignAllCenterX metrics:@{@"padding": @(padding)} views:viewDict]];
     // 然后只需要确定好这两个button中其中一个的中心点x轴相对布局即可
     [NSLayoutConstraint constraintWithItem:self.button1 attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeCenterX multiplier:1 constant:0].active = YES;
 }
