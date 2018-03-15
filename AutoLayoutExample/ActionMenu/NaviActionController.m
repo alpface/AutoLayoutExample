@@ -65,6 +65,7 @@ static inline CGSize TextSize(NSString *text,
 @property (nonatomic, strong) NSMutableArray<NSMutableArray<NaviActionButton *> *> *lineArray;
 @property (nonatomic, copy) void (^ buttonActionBlock)(NaviActionItem *item);
 - (void)reloadItems;
+- (void)setBottomView:(UIView *)bottomView animated:(BOOL)animated height:(CGFloat)height;
 @end
 
 
@@ -109,6 +110,8 @@ static inline CGSize TextSize(NSString *text,
     // 设置这两个属性会导致屏幕旋转时，containerView的高度会超出父视图
 //    self.containerView.itemHeight = 100.0;
 //    self.containerView.square = YES;
+    
+    
     
     [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[backgroundView]|" options:kNilOptions metrics:nil views:@{@"backgroundView": self.backgroundView}]];
     [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[backgroundView]|" options:kNilOptions metrics:nil views:@{@"backgroundView": self.backgroundView}]];
@@ -167,6 +170,11 @@ static inline CGSize TextSize(NSString *text,
                 [self.delegate naviActionController:self didClickItem:item];
             }
         };
+        UILabel *bottomView = [UILabel new];
+        bottomView.backgroundColor = [UIColor greenColor];
+        bottomView.text = @"this is bottom";
+        bottomView.textAlignment = NSTextAlignmentCenter;
+        [containerView setBottomView:bottomView animated:NO height:100.0];
     }
     return _containerView;
 }
@@ -257,6 +265,12 @@ static inline CGSize TextSize(NSString *text,
 
 @end
 
+@interface NaviActionContentView ()
+@property (nonatomic, assign) BOOL showbottomViewAnimated;
+@property (nonatomic, assign) CGFloat bottomViewHeight;
+@property (nonatomic, strong) UIView *bottomView;
+@end
+
 @implementation NaviActionContentView
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
@@ -339,7 +353,7 @@ static inline CGSize TextSize(NSString *text,
     //    [self layoutIfNeeded];
     //    // 获取contentView的size
     //    CGSize size = [self systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
-    //    self.cellModel.height = size.height;
+    //    height = size.height;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -447,8 +461,14 @@ static inline CGSize TextSize(NSString *text,
             }
             
             if (i == lineArray.count - 1) {
-                // 最后一行, 拼接底部
-                [vFormat appendFormat:@"-(==vPadiing)-|"];
+                // 最后一行, 如果有bottomView，则拼接上，没有则拼接父底部
+                if ([self showBottomView]) {
+                    [vSubviewsDict setObject:self.bottomView forKey:@"bottomView"];
+                    [vFormat appendFormat:@"-(==vPadiing)-[bottomView]-(0.0)-|"];
+                }
+                else {
+                    [vFormat appendFormat:@"-(==vPadiing)-|"];
+                }
             }
             
             if (vFormat.length) {
@@ -477,11 +497,113 @@ static inline CGSize TextSize(NSString *text,
         
     }
     
+    NSLayoutConstraint *bottomHeightConstraint = nil;
+    if ([self showBottomView]) {
+        [constraints addObject:[NSLayoutConstraint constraintWithItem:self.bottomView attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0.0]];
+        [constraints addObject:[NSLayoutConstraint constraintWithItem:self.bottomView attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:0.0]];
+        bottomHeightConstraint = [NSLayoutConstraint constraintWithItem:self.bottomView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:0.0];
+        [constraints addObject:bottomHeightConstraint];
+        
+    }
+    
     [NSLayoutConstraint activateConstraints:constraints];
     
+    if ([self showBottomView]) {
+        if (self.showbottomViewAnimated) {
+            bottomHeightConstraint.constant = self.bottomViewHeight;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [UIView animateWithDuration:1.0 animations:^{
+                    [self layoutIfNeeded];
+                } completion:^(BOOL finished) {
+                    
+                }];
+            });
+        }
+        else {
+            bottomHeightConstraint.constant = self.bottomViewHeight;;
+        }
+    }
     
 }
 
+- (void)setBottomView:(UIView *)bottomView animated:(BOOL)animated height:(CGFloat)height {
+    if (_bottomView == bottomView) {
+        return;
+    }
+    self.showbottomViewAnimated = animated;
+    self.bottomViewHeight = height;
+    _bottomView = bottomView;
+    [self addSubview:bottomView];
+    bottomView.translatesAutoresizingMaskIntoConstraints = false;
+//    [self updateBottomViewConstraints];
+    [self setNeedsUpdateConstraints];
+    [self updateConstraintsIfNeeded];
+}
+
+- (void)updateBottomViewConstraints {
+    UIView *bottomView = self.bottomView;
+    if (bottomView == nil) {
+        [self setNeedsUpdateConstraints];
+        [self updateConstraintsIfNeeded];
+        return;
+    }
+    BOOL animated = self.showbottomViewAnimated;
+    if (self.viewConstraints.count == 0) {
+        return;
+    }
+    NSArray *relativeParentViewBottomConstraints = [self getRelativeParentViewBottomConstraintsOfLastLineButtons];
+    [NSLayoutConstraint deactivateConstraints:relativeParentViewBottomConstraints];
+    [self.viewConstraints removeObjectsInArray:relativeParentViewBottomConstraints];
+    NSMutableArray *bottomConstraints = @[].mutableCopy;
+    [self.lineArray.lastObject enumerateObjectsUsingBlock:^(NaviActionButton * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [bottomConstraints addObject:[NSLayoutConstraint constraintWithItem:obj attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:bottomView attribute:NSLayoutAttributeTop multiplier:1.0 constant:-self.itemVPadding]];
+    }];
+    [bottomConstraints addObject:[NSLayoutConstraint constraintWithItem:self.bottomView attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0.0]];
+    [bottomConstraints addObject:[NSLayoutConstraint constraintWithItem:self.bottomView attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:0.0]];
+    NSLayoutConstraint *bottomHeightConstraint = [NSLayoutConstraint constraintWithItem:self.bottomView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:0.0];
+    [bottomConstraints addObject:bottomHeightConstraint];
+    [NSLayoutConstraint activateConstraints:bottomConstraints];
+    [self.viewConstraints addObjectsFromArray:bottomConstraints];
+    
+    [self.viewConstraints addObject:bottomHeightConstraint];
+    if (animated) {
+        bottomHeightConstraint.constant = self.bottomView.frame.size.height;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [UIView animateWithDuration:1.0 animations:^{
+                [self layoutIfNeeded];
+            } completion:^(BOOL finished) {
+                
+            }];
+        });
+        
+    }
+    else {
+        bottomHeightConstraint.constant = self.bottomView.frame.size.height;;
+    }
+}
+
+
+/// 获取最后一行button相对俯视图的底部约束数组
+- (NSArray *)getRelativeParentViewBottomConstraintsOfLastLineButtons {
+
+    NSMutableArray *array = @[].mutableCopy;
+    [self.viewConstraints enumerateObjectsUsingBlock:^(__kindof NSLayoutConstraint * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([obj.firstItem isEqual:self] &&
+            obj.firstAttribute == NSLayoutAttributeBottom &&
+            [self.lineArray.lastObject containsObject:obj.secondItem]) {
+            [array addObject:obj];
+        }
+    }];
+    return array;
+    
+}
+
+- (BOOL)showBottomView {
+    if (_bottomView && _bottomView.superview) {
+        return YES;
+    }
+    return NO;
+}
 
 - (NaviActionButton *)createButton {
     NaviActionButton *btn = [NaviActionButton new];
