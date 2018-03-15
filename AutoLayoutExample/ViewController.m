@@ -7,11 +7,24 @@
 //
 
 #import "ViewController.h"
-#import "NaviActionController.h"
+#import "NaviViewController.h"
+#import "DragViewController.h"
 
-@interface ViewController () <NaviActionControllerDelegate>
-@property (nonatomic, strong) NaviActionController *viewController;
-@property (nonatomic, strong) UIView *leftView;
+@interface AutoLayoutExampleItem : NSObject
+
+@property (nonatomic, copy) NSString *title;
+@property (nonatomic, assign) Class exampleClass;
+
+- (instancetype)initWithTitle:(NSString *)title exampleClass:(Class)clas;
+
+@end
+
+@interface ViewController () <UITableViewDataSource, UITableViewDelegate>
+
+@property (nonatomic, strong) UITableView *tableView;
+
+@property (nonatomic, strong) NSMutableArray<AutoLayoutExampleItem *> *tableArray;
+
 @end
 
 @implementation ViewController
@@ -19,134 +32,77 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    
+    self.view.backgroundColor = [UIColor whiteColor];
     [self setupViews];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"show" style:UIBarButtonItemStylePlain target:self action:@selector(toggle:)];
+    self.tableArray = @[
+                        [[AutoLayoutExampleItem alloc] initWithTitle:@"Navi action menu" exampleClass:[NaviViewController class]],
+                        [[AutoLayoutExampleItem alloc] initWithTitle:@"Drag" exampleClass:[DragViewController class]],
+                        ].mutableCopy;
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientation:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self.viewController show];
-    });
-}
-
-- (NaviActionController *)viewController {
-    if (!_viewController) {
-        _viewController = [[NaviActionController alloc] init];
-        _viewController.delegate = self;
-        for (NSInteger i = 0; i < 18; i++) {
-            NaviActionItem *item = NaviActionItem.new;
-            item.title = @(i).stringValue;
-            item.image = [UIImage imageNamed:@"icon_man"];
-            [_viewController addAction:item];
-        }
-    }
-    return _viewController;
-}
-
-- (UIView *)leftView {
-    if (_leftView == nil) {
-        UIView *leftView = [UIView new];
-        leftView.translatesAutoresizingMaskIntoConstraints = false;
-        _leftView = leftView;
-        leftView.backgroundColor = [[UIColor yellowColor] colorWithAlphaComponent:0.5];
-        leftView.layer.cornerRadius = 5.0;
-        leftView.layer.masksToBounds = YES;
-    }
-    return _leftView;
-}
-
-- (void)toggle:(UIBarButtonItem *)item {
-    if ([item.title isEqualToString:@"dismiss"]) {
-        item.title = @"show";
-        [self.viewController dismiss];
-    }
-    else {
-        item.title = @"dismiss";
-        [self.viewController show];
-        
-    }
+    [self.tableView reloadData];
 }
 
 - (void)setupViews {
-    [self.view addSubview:self.viewController.view];
-    [self.view addSubview:self.leftView];
-    self.viewController.view.translatesAutoresizingMaskIntoConstraints = false;
-    
-    CGFloat padding = 10.0;
-    CGFloat leftViewWidth = 35.0;
-    if (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation)) {
-        padding = 0.0;
-        leftViewWidth = 0.0;
+    [self.view addSubview:self.tableView];
+    [self.tableView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor].active = YES;
+    [self.tableView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor].active = YES;
+    [self.tableView.topAnchor constraintEqualToAnchor:self.view.topAnchor].active = YES;
+    [self.tableView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor].active = YES;
+}
+
+- (UITableView *)tableView {
+    if (!_tableView) {
+        UITableView *tableView = [UITableView new];
+        _tableView = tableView;
+        tableView.dataSource = self;
+        tableView.delegate = self;
+        tableView.translatesAutoresizingMaskIntoConstraints = false;
+        [tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"UITableViewCell"];
     }
-    
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(padding)-[leftView(==leftViewWidth)]-(padding)-[viewController]-(0.0)-|" options:kNilOptions metrics:@{@"padding": @(padding), @"leftViewWidth": @(leftViewWidth)} views:@{@"viewController": self.viewController.view, @"leftView": self.leftView}]];
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[viewController]|" options:kNilOptions metrics:nil views:@{@"viewController": self.viewController.view}]];
-    [NSLayoutConstraint constraintWithItem:self.leftView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.viewController.containerView attribute:NSLayoutAttributeTop multiplier:1.0 constant:0.0].active = YES;
-    [NSLayoutConstraint constraintWithItem:self.leftView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.viewController.containerView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0.0].active = YES;
-    
-     [self updateLeftViewConstraints];
+    return _tableView;
 }
 
-- (NSLayoutConstraint *)leftViewLeftConstraint {
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"firstItem==%@ AND firstAttribute==%ld", self.leftView, NSLayoutAttributeLeading];
-    NSLayoutConstraint *constraint = [self.view.constraints filteredArrayUsingPredicate:predicate].firstObject;
-    return constraint;
-}
-
-- (NSLayoutConstraint *)leftViewRightConstraint {
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"firstItem==%@ AND secondItem==%@ AND firstAttribute==%ld", self.viewController.view, self.leftView, NSLayoutAttributeLeading];
-    NSLayoutConstraint *constraint = [self.view.constraints filteredArrayUsingPredicate:predicate].firstObject;
-    return constraint;
-}
-
-- (NSLayoutConstraint *)leftViewWidthConstraint {
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"firstItem==%@ AND firstAttribute==%ld", self.leftView, NSLayoutAttributeWidth];
-    NSLayoutConstraint *constraint = [self.leftView.constraints filteredArrayUsingPredicate:predicate].firstObject;
-    return constraint;
-}
-
-- (void)updateLeftViewConstraints {
-    CGFloat padding = 10.0;
-    CGFloat leftViewWidth = 35.0;
-    if (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation)) {
-        padding = 0.0;
-        leftViewWidth = 0.0;
+- (NSMutableArray *)tableArray {
+    if (!_tableView) {
+        _tableArray = [NSMutableArray array];
     }
-    [self leftViewLeftConstraint].constant = padding;
-    [self leftViewRightConstraint].constant = padding;
-    self.leftViewWidthConstraint.constant = leftViewWidth;
-}
-
-- (void)didChangeStatusBarOrientation:(NSNotification *)notif {
-    [self updateLeftViewConstraints];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [UIView animateWithDuration:0.3 animations:^{
-            [self.view layoutIfNeeded];
-        }];
-    });
+    return _tableArray;
 }
 
 ////////////////////////////////////////////////////////////////////////
-#pragma mark - NaviActionControllerDelegate
+#pragma mark - UITableViewDataSource, UITableViewDelegate
 ////////////////////////////////////////////////////////////////////////
 
-- (void)naviActionController:(NaviActionController *)controller didClickItem:(NaviActionItem *)item {
-    
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.tableArray.count;
 }
 
-- (void)naviActionControllerDidDismiss:(NaviActionController *)controller {
-    self.navigationItem.rightBarButtonItem.title = @"show";
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"UITableViewCell" forIndexPath:indexPath];
+    cell.textLabel.text = self.tableArray[indexPath.row].title;
+    return cell;
 }
 
-- (void)naviActionControllerDidShow:(NaviActionController *)controller {
-    self.navigationItem.rightBarButtonItem.title = @"dismiss";
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    AutoLayoutExampleItem *item = self.tableArray[indexPath.row];
+    UIViewController *vc = [item.exampleClass new];
+    vc.view.backgroundColor = [UIColor whiteColor];
+    vc.title = item.title;
+    [self showViewController:vc sender:self];
 }
+@end
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+@implementation AutoLayoutExampleItem
+
+- (instancetype)initWithTitle:(NSString *)title exampleClass:(Class)clas {
+    if (self = [super init]) {
+        _title = title;
+        _exampleClass = clas;
+    }
+    return self;
 }
-
 
 @end

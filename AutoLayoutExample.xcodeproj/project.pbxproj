@@ -14,6 +14,8 @@
 		D0AF1773205915EF00D7A460 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0AF1771205915EF00D7A460 /* LaunchScreen.storyboard */; };
 		D0AF1776205915EF00D7A460 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D0AF1775205915EF00D7A460 /* main.m */; };
 		D0AF177F2059163400D7A460 /* NaviActionController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0AF177E2059163300D7A460 /* NaviActionController.m */; };
+		D0BE5A32205A3215006CE5EE /* NaviViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BE5A31205A3215006CE5EE /* NaviViewController.m */; };
+		D0BE5A35205A347D006CE5EE /* DragViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BE5A34205A347D006CE5EE /* DragViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +31,10 @@
 		D0AF1775205915EF00D7A460 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D0AF177D2059163300D7A460 /* NaviActionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NaviActionController.h; sourceTree = "<group>"; };
 		D0AF177E2059163300D7A460 /* NaviActionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NaviActionController.m; sourceTree = "<group>"; };
+		D0BE5A30205A3215006CE5EE /* NaviViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NaviViewController.h; sourceTree = "<group>"; };
+		D0BE5A31205A3215006CE5EE /* NaviViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NaviViewController.m; sourceTree = "<group>"; };
+		D0BE5A33205A347D006CE5EE /* DragViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragViewController.h; sourceTree = "<group>"; };
+		D0BE5A34205A347D006CE5EE /* DragViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DragViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,7 +67,7 @@
 		D0AF1765205915EF00D7A460 /* AutoLayoutExample */ = {
 			isa = PBXGroup;
 			children = (
-				D0AF177C2059163300D7A460 /* ActionMenu */,
+				D0BE5A2F205A31DD006CE5EE /* Example */,
 				D0AF1766205915EF00D7A460 /* AppDelegate.h */,
 				D0AF1767205915EF00D7A460 /* AppDelegate.m */,
 				D0AF1769205915EF00D7A460 /* ViewController.h */,
@@ -75,13 +81,17 @@
 			path = AutoLayoutExample;
 			sourceTree = "<group>";
 		};
-		D0AF177C2059163300D7A460 /* ActionMenu */ = {
+		D0BE5A2F205A31DD006CE5EE /* Example */ = {
 			isa = PBXGroup;
 			children = (
 				D0AF177D2059163300D7A460 /* NaviActionController.h */,
 				D0AF177E2059163300D7A460 /* NaviActionController.m */,
+				D0BE5A30205A3215006CE5EE /* NaviViewController.h */,
+				D0BE5A31205A3215006CE5EE /* NaviViewController.m */,
+				D0BE5A33205A347D006CE5EE /* DragViewController.h */,
+				D0BE5A34205A347D006CE5EE /* DragViewController.m */,
 			);
-			path = ActionMenu;
+			name = Example;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -158,6 +168,8 @@
 				D0AF176B205915EF00D7A460 /* ViewController.m in Sources */,
 				D0AF1776205915EF00D7A460 /* main.m in Sources */,
 				D0AF1768205915EF00D7A460 /* AppDelegate.m in Sources */,
+				D0BE5A32205A3215006CE5EE /* NaviViewController.m in Sources */,
+				D0BE5A35205A347D006CE5EE /* DragViewController.m in Sources */,
 				D0AF177F2059163400D7A460 /* NaviActionController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -295,7 +307,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = NKW67GFDHM;
 				INFOPLIST_FILE = AutoLayoutExample/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.alpface.AutoLayoutExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -310,7 +322,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = NKW67GFDHM;
 				INFOPLIST_FILE = AutoLayoutExample/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.alpface.AutoLayoutExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
