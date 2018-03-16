@@ -7,10 +7,10 @@
 //
 
 #import "NaviViewController.h"
-#import "NaviActionController.h"
+#import "NaviActionController2.h"
 
-@interface NaviViewController () <NaviActionControllerDelegate>
-@property (nonatomic, strong) NaviActionController *viewController;
+@interface NaviViewController () <NaviActionContentViewrDelegate>
+@property (nonatomic, strong) NaviActionController2 *viewController;
 @property (nonatomic, strong) UIView *leftView;
 @end
 
@@ -30,12 +30,12 @@
     });
 }
 
-- (NaviActionController *)viewController {
+- (NaviActionController2 *)viewController {
     if (!_viewController) {
-        _viewController = [[NaviActionController alloc] init];
+        _viewController = [[[self naviActionActionClass] alloc] init];
         _viewController.delegate = self;
         NSMutableArray *items = @[].mutableCopy;
-        for (NSInteger i = 0; i < 18; i++) {
+        for (NSInteger i = 0; i < 9; i++) {
             NaviActionItem *item = [[NaviActionItem alloc] initWithTitle:[NSString stringWithFormat:@"main_%ld", i] image:[UIImage imageNamed:@"icon_man"] clickBlock:^(NaviActionItem *item) {
                 
             }];
@@ -56,6 +56,10 @@
         leftView.layer.masksToBounds = YES;
     }
     return _leftView;
+}
+
+- (Class)naviActionActionClass {
+    return [NaviActionController2 class];
 }
 
 - (void)toggle:(UIBarButtonItem *)item {
@@ -133,15 +137,15 @@
 #pragma mark - NaviActionControllerDelegate
 ////////////////////////////////////////////////////////////////////////
 
-- (void)naviActionController:(NaviActionController *)controller didClickItem:(NaviActionItem *)item {
+- (void)naviActionView:(NaviActionContentView *)view didClickItem:(NaviActionItem *)item {
     
 }
 
-- (void)naviActionControllerDidDismiss:(NaviActionController *)controller {
+- (void)naviActionViewDidDismiss:(NaviActionContentView *)view {
     self.navigationItem.rightBarButtonItem.title = @"show";
 }
 
-- (void)naviActionControllerDidShow:(NaviActionController *)controller {
+- (void)naviActionViewDidShow:(NaviActionContentView *)view {
     self.navigationItem.rightBarButtonItem.title = @"dismiss";
 }
 

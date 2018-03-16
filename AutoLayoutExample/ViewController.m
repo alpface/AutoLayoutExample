@@ -10,6 +10,7 @@
 #import "NaviViewController.h"
 #import "DragViewController.h"
 #import "LabelViewController.h"
+#import "NaviViewController2.h"
 
 @interface AutoLayoutExampleItem : NSObject
 
@@ -37,8 +38,10 @@
     [self setupViews];
     self.tableArray = @[
                         [[AutoLayoutExampleItem alloc] initWithTitle:@"Navi action menu" exampleClass:[NaviViewController class]],
+                        [[AutoLayoutExampleItem alloc] initWithTitle:@"Navi action menu 2" exampleClass:[NaviViewController2 class]],
                         [[AutoLayoutExampleItem alloc] initWithTitle:@"Drag" exampleClass:[DragViewController class]],
-                        [[AutoLayoutExampleItem alloc] initWithTitle:@"Label Text" exampleClass:[LabelViewController class]]
+                        [[AutoLayoutExampleItem alloc] initWithTitle:@"Label Text" exampleClass:[LabelViewController class]],
+                        
                         ].mutableCopy;
     
     [self.tableView reloadData];

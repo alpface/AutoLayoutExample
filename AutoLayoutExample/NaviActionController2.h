@@ -1,5 +1,5 @@
 //
-//  NaviActionController.h
+//  NaviActionController2.h
 //  AutoLayoutExample
 //
 //  Created by xiaoyuan on 2018/3/13.
@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "NaviActionContentView.h"
 
-@interface NaviActionController : UIViewController
+@interface NaviActionController2 : UIViewController
 
 @property (nonatomic, strong, readonly) NaviActionContentView *containerView;
 @property (nonatomic, strong) NSArray<NaviActionItem *> *items;

@@ -7,19 +7,28 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D06A6A35205B86410096304F /* NaviActionController2.m in Sources */ = {isa = PBXBuildFile; fileRef = D06A6A34205B86400096304F /* NaviActionController2.m */; };
+		D06A6A38205B8F7C0096304F /* NaviActionContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = D06A6A37205B8F7C0096304F /* NaviActionContentView.m */; };
+		D06A6A39205B91B30096304F /* NaviActionController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0AF177E2059163300D7A460 /* NaviActionController.m */; };
+		D06A6A3C205B93AB0096304F /* NaviViewController2.m in Sources */ = {isa = PBXBuildFile; fileRef = D06A6A3B205B93AB0096304F /* NaviViewController2.m */; };
 		D0AF1768205915EF00D7A460 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D0AF1767205915EF00D7A460 /* AppDelegate.m */; };
 		D0AF176B205915EF00D7A460 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0AF176A205915EF00D7A460 /* ViewController.m */; };
 		D0AF176E205915EF00D7A460 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0AF176C205915EF00D7A460 /* Main.storyboard */; };
 		D0AF1770205915EF00D7A460 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0AF176F205915EF00D7A460 /* Assets.xcassets */; };
 		D0AF1773205915EF00D7A460 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0AF1771205915EF00D7A460 /* LaunchScreen.storyboard */; };
 		D0AF1776205915EF00D7A460 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D0AF1775205915EF00D7A460 /* main.m */; };
-		D0AF177F2059163400D7A460 /* NaviActionController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0AF177E2059163300D7A460 /* NaviActionController.m */; };
 		D0BE5A32205A3215006CE5EE /* NaviViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BE5A31205A3215006CE5EE /* NaviViewController.m */; };
 		D0BE5A35205A347D006CE5EE /* DragViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BE5A34205A347D006CE5EE /* DragViewController.m */; };
 		D0BE5A5A205A4972006CE5EE /* LabelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BE5A59205A4972006CE5EE /* LabelViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D06A6A33205B86400096304F /* NaviActionController2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NaviActionController2.h; sourceTree = "<group>"; };
+		D06A6A34205B86400096304F /* NaviActionController2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NaviActionController2.m; sourceTree = "<group>"; };
+		D06A6A36205B8F7C0096304F /* NaviActionContentView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NaviActionContentView.h; sourceTree = "<group>"; };
+		D06A6A37205B8F7C0096304F /* NaviActionContentView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NaviActionContentView.m; sourceTree = "<group>"; };
+		D06A6A3A205B93AB0096304F /* NaviViewController2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NaviViewController2.h; sourceTree = "<group>"; };
+		D06A6A3B205B93AB0096304F /* NaviViewController2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NaviViewController2.m; sourceTree = "<group>"; };
 		D0AF1763205915EF00D7A460 /* AutoLayoutExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AutoLayoutExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0AF1766205915EF00D7A460 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D0AF1767205915EF00D7A460 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -87,10 +96,16 @@
 		D0BE5A2F205A31DD006CE5EE /* Example */ = {
 			isa = PBXGroup;
 			children = (
+				D06A6A33205B86400096304F /* NaviActionController2.h */,
+				D06A6A34205B86400096304F /* NaviActionController2.m */,
+				D06A6A36205B8F7C0096304F /* NaviActionContentView.h */,
+				D06A6A37205B8F7C0096304F /* NaviActionContentView.m */,
 				D0AF177D2059163300D7A460 /* NaviActionController.h */,
 				D0AF177E2059163300D7A460 /* NaviActionController.m */,
 				D0BE5A30205A3215006CE5EE /* NaviViewController.h */,
 				D0BE5A31205A3215006CE5EE /* NaviViewController.m */,
+				D06A6A3A205B93AB0096304F /* NaviViewController2.h */,
+				D06A6A3B205B93AB0096304F /* NaviViewController2.m */,
 				D0BE5A33205A347D006CE5EE /* DragViewController.h */,
 				D0BE5A34205A347D006CE5EE /* DragViewController.m */,
 				D0BE5A58205A4972006CE5EE /* LabelViewController.h */,
@@ -171,12 +186,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				D0AF176B205915EF00D7A460 /* ViewController.m in Sources */,
+				D06A6A3C205B93AB0096304F /* NaviViewController2.m in Sources */,
 				D0AF1776205915EF00D7A460 /* main.m in Sources */,
 				D0AF1768205915EF00D7A460 /* AppDelegate.m in Sources */,
 				D0BE5A32205A3215006CE5EE /* NaviViewController.m in Sources */,
+				D06A6A39205B91B30096304F /* NaviActionController.m in Sources */,
+				D06A6A38205B8F7C0096304F /* NaviActionContentView.m in Sources */,
+				D06A6A35205B86410096304F /* NaviActionController2.m in Sources */,
 				D0BE5A35205A347D006CE5EE /* DragViewController.m in Sources */,
 				D0BE5A5A205A4972006CE5EE /* LabelViewController.m in Sources */,
-				D0AF177F2059163400D7A460 /* NaviActionController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

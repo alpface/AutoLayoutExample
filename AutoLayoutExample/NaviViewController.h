@@ -10,4 +10,6 @@
 
 @interface NaviViewController : UIViewController
 
+- (Class)naviActionActionClass;
+
 @end
