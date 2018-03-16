@@ -418,6 +418,7 @@ static inline CGSize TextSize(NSString *text,
 
 @implementation NaviActionButton {
     CGSize _titleLabelSize;
+    CGFloat padding;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -426,6 +427,8 @@ static inline CGSize TextSize(NSString *text,
     if (self) {
         self.titleLabel.textAlignment = NSTextAlignmentCenter;
         self.imageView.contentMode = UIViewContentModeScaleAspectFit;
+        self.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+        self.clipsToBounds = NO;
     }
     return self;
 }
@@ -437,12 +440,13 @@ static inline CGSize TextSize(NSString *text,
     if (CGSizeEqualToSize(_titleLabelSize, CGSizeZero)) {
         return CGRectMake(0.0, 0.0, bounds.size.width, bounds.size.height);
     }
-    return CGRectMake(0.0, 0.0, bounds.size.width, bounds.size.height-_titleLabelSize.height);
+    return CGRectMake(0.0, padding, bounds.size.width, bounds.size.height-_titleLabelSize.height-20.0-padding);
 }
 
 - (CGRect)titleRectForContentRect:(CGRect)bounds {
     if (self.imageView.image) {
-        return CGRectMake(0.0, self.imageView.bounds.size.height, bounds.size.width, bounds.size.height-self.imageView.bounds.size.height);
+        CGFloat width = _titleLabelSize.width + 10.0;
+        return CGRectMake((self.bounds.size.width-width)*0.5, self.imageView.bounds.size.height+padding, width, bounds.size.height-self.imageView.bounds.size.height);
     }
     return CGRectMake(0.0, 0.0, bounds.size.width, bounds.size.height);
     
