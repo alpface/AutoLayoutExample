@@ -23,6 +23,10 @@
 
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, strong) UIImage *image;
+@property (nonatomic, copy) void (^ clickBlock)(NaviActionItem *item);
+- (instancetype)initWithTitle:(NSString *)title
+                        image:(UIImage *)image
+                   clickBlock:(void (^)(NaviActionItem *item))clickBlock;
 
 @end
 
@@ -34,10 +38,10 @@
 @interface NaviActionController : UIViewController
 
 @property (nonatomic, strong, readonly) NaviActionContentView *containerView;
-@property (nonatomic, strong, readonly) NSMutableArray<NaviActionItem *> *items;
+@property (nonatomic, strong) NSArray<NaviActionItem *> *items;
 @property (nonatomic, weak) id<NaviActionControllerDelegate> delegate;
-- (void)addAction:(NaviActionItem *)item;
 
-- (void)show;
-- (void)dismiss;
+- (void)showWithAnimated:(BOOL)animated;
+- (void)dismissWithAnimated:(BOOL)animated;
+
 @end

@@ -26,7 +26,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientation:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self.viewController show];
+        [self.viewController showWithAnimated:YES];
     });
 }
 
@@ -34,12 +34,14 @@
     if (!_viewController) {
         _viewController = [[NaviActionController alloc] init];
         _viewController.delegate = self;
+        NSMutableArray *items = @[].mutableCopy;
         for (NSInteger i = 0; i < 18; i++) {
-            NaviActionItem *item = NaviActionItem.new;
-            item.title = @(i).stringValue;
-            item.image = [UIImage imageNamed:@"icon_man"];
-            [_viewController addAction:item];
+            NaviActionItem *item = [[NaviActionItem alloc] initWithTitle:[NSString stringWithFormat:@"main_%ld", i] image:[UIImage imageNamed:@"icon_man"] clickBlock:^(NaviActionItem *item) {
+                
+            }];
+            [items addObject:item];
         }
+        _viewController.items = items;
     }
     return _viewController;
 }
@@ -59,11 +61,11 @@
 - (void)toggle:(UIBarButtonItem *)item {
     if ([item.title isEqualToString:@"dismiss"]) {
         item.title = @"show";
-        [self.viewController dismiss];
+        [self.viewController dismissWithAnimated:YES];
     }
     else {
         item.title = @"dismiss";
-        [self.viewController show];
+        [self.viewController showWithAnimated:YES];
         
     }
 }

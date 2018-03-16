@@ -134,7 +134,7 @@ static inline CGSize TextSize(NSString *text,
     [self.viewConstraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[containerView]-(margin)-|" options:kNilOptions metrics:metrics views:@{@"containerView": self.containerView}]];
     CGFloat topMargin = CONTAINERVIEW_TOP_MAX_MARGIN;
     if (self.isShow == NO) {
-        topMargin = [UIScreen mainScreen].bounds.size.height;
+        topMargin = self.view.frame.size.height;
     }
     [self.viewConstraints addObject:[NSLayoutConstraint constraintWithItem:self.containerView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationGreaterThanOrEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:topMargin]];
     [NSLayoutConstraint activateConstraints:self.viewConstraints];
@@ -165,6 +165,9 @@ static inline CGSize TextSize(NSString *text,
         containerView.translatesAutoresizingMaskIntoConstraints = false;
         __weak typeof(&*self) weakSelf = self;
         containerView.buttonActionBlock = ^(NaviActionItem *item) {
+            if (item.clickBlock) {
+                item.clickBlock(item);
+            }
             __strong typeof(&*weakSelf) self = weakSelf;
             if (self.delegate && [self.delegate respondsToSelector:@selector(naviActionController:didClickItem:)]) {
                 [self.delegate naviActionController:self didClickItem:item];
@@ -192,15 +195,15 @@ static inline CGSize TextSize(NSString *text,
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////
 
-- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    [self dismiss];
-}
+//- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+//    [self dismiss];
+//}
 
 ////////////////////////////////////////////////////////////////////////
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////
 
-- (void)show {
+- (void)showWithAnimated:(BOOL)animated {
     
     self.show = YES;
     
@@ -210,27 +213,45 @@ static inline CGSize TextSize(NSString *text,
     dispatch_async(dispatch_get_main_queue(), ^{
         self.backgroundView.alpha = 0.3;
         [self containerViewTopConstraint].constant = CONTAINERVIEW_TOP_MAX_MARGIN;
-        [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+        if (animated) {
+            [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+                [self.view layoutIfNeeded];
+            } completion:^(BOOL finished) {
+                if (self.delegate && [self.delegate respondsToSelector:@selector(naviActionControllerDidShow:)]) {
+                    [self.delegate naviActionControllerDidShow:self];
+                }
+            }];
+        }
+        else {
             [self.view layoutIfNeeded];
-        } completion:^(BOOL finished) {
             if (self.delegate && [self.delegate respondsToSelector:@selector(naviActionControllerDidShow:)]) {
                 [self.delegate naviActionControllerDidShow:self];
             }
-        }];
+        }
+        
     });
 }
 
-- (void)dismiss {
+- (void)dismissWithAnimated:(BOOL)animated {
     self.show = NO;
-    [self containerViewTopConstraint].constant = [UIScreen mainScreen].bounds.size.height;
-    [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-        self.backgroundView.alpha = 0.0;
+    [self containerViewTopConstraint].constant = self.view.frame.size.height;
+    if (animated) {
+        [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            self.backgroundView.alpha = 0.0;
+            [self.view layoutIfNeeded];
+        } completion:^(BOOL finished) {
+            if (self.delegate && [self.delegate respondsToSelector:@selector(naviActionControllerDidDismiss:)]) {
+                [self.delegate naviActionControllerDidDismiss:self];
+            }
+        }];
+    }
+    else {
         [self.view layoutIfNeeded];
-    } completion:^(BOOL finished) {
         if (self.delegate && [self.delegate respondsToSelector:@selector(naviActionControllerDidDismiss:)]) {
             [self.delegate naviActionControllerDidDismiss:self];
         }
-    }];
+    }
+    
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -247,22 +268,19 @@ static inline CGSize TextSize(NSString *text,
 }
 
 
-
-- (void)addAction:(NaviActionItem *)item {
-    [self.items addObject:item];
-}
-
-@synthesize items = _items;
-- (NSMutableArray<NaviActionItem *> *)items {
-    if (!_items) {
-        _items = @[].mutableCopy;
-    }
-    return _items;
-}
 @end
 
 @implementation NaviActionItem
-
+- (instancetype)initWithTitle:(NSString *)title
+                        image:(UIImage *)image
+                   clickBlock:(void (^)(NaviActionItem *item))clickBlock {
+    if (self = [super init]) {
+        _title = title;
+        _image = image;
+        _clickBlock = [clickBlock copy];
+    }
+    return self;
+}
 @end
 
 @interface NaviActionContentView ()
@@ -610,7 +628,7 @@ static inline CGSize TextSize(NSString *text,
     btn.translatesAutoresizingMaskIntoConstraints = NO;
     [btn setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
     btn.imageView.contentMode = UIViewContentModeScaleAspectFit;
-    btn.titleLabel.font = [UIFont systemFontOfSize:28.0];
+    btn.titleLabel.font = [UIFont systemFontOfSize:20.0];
     btn.titleLabel.textAlignment = NSTextAlignmentCenter;
     [btn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     return btn;
