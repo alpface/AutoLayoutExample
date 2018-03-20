@@ -35,8 +35,8 @@
         _viewController = [[[self naviActionActionClass] alloc] init];
         _viewController.delegate = self;
         NSMutableArray *items = @[].mutableCopy;
-        for (NSInteger i = 0; i < 9; i++) {
-            NaviActionItem *item = [[NaviActionItem alloc] initWithTitle:[NSString stringWithFormat:@"main_%ld", i] image:[UIImage imageNamed:@"icon_man"] clickBlock:^(NaviActionItem *item) {
+        for (NSInteger i = 0; i < MAX(6, arc4random_uniform(30)); i++) {
+            NaviActionItem *item = [[NaviActionItem alloc] initWithTitle:[NSString stringWithFormat:@"main%ld", i] image:[UIImage imageNamed:@"icon_man"] clickBlock:^(NaviActionItem *item) {
                 
             }];
             [items addObject:item];

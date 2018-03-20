@@ -385,7 +385,7 @@ static inline CGSize TextSize(NSString *text,
     btn.translatesAutoresizingMaskIntoConstraints = NO;
     [btn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     btn.imageView.contentMode = UIViewContentModeScaleAspectFit;
-    btn.titleLabel.font = [UIFont systemFontOfSize:20.0];
+    btn.titleLabel.font = [UIFont systemFontOfSize:16.0];
     btn.titleLabel.textAlignment = NSTextAlignmentCenter;
     [btn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     return btn;
