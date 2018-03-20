@@ -40,7 +40,7 @@
         _viewController = [[[self naviActionActionClass] alloc] init];
         _viewController.delegate = self;
         NSMutableArray *items = @[].mutableCopy;
-        for (NSInteger i = 0; i < MAX(6, arc4random_uniform(30)); i++) {
+        for (NSInteger i = 0; i < MAX(3, arc4random_uniform(30)); i++) {
             NaviActionItem *item = [[NaviActionItem alloc] initWithTitle:[NSString stringWithFormat:@"main%ld", i] image:[UIImage imageNamed:@"icon_man"] clickBlock:^(NaviActionItem *item) {
                 
             }];

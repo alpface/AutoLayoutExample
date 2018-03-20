@@ -515,7 +515,7 @@ static inline CGSize TextSize(NSString *text,
         view.layer.borderWidth   = 1;
         view.layer.masksToBounds = YES;
         view.userInteractionEnabled = NO;
-        view.layer.backgroundColor = [UIColor colorWithRed:204/255.0 green:204/255.0 blue:204/255.0 alpha:1.0].CGColor;
+        view.layer.borderColor = [UIColor colorWithRed:204/255.0 green:204/255.0 blue:204/255.0 alpha:1.0].CGColor;
     }
     return _cornerView;
 }
