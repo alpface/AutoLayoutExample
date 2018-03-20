@@ -196,14 +196,6 @@ static inline CGSize TextSize(NSString *text,
             NSString *buttonKey = [NSString stringWithFormat:@"button_row_%ld_section_%ld", j, i];
             [hSubviewsDict setValue:btn forKey:buttonKey];
             
-            // 布局根据padding的大小，自适应button的宽度，每个button的宽度相同
-            // 子控件之间的列约束
-            [hFormat appendFormat:@"-(==hPadding)-[%@%@]", buttonKey, previousBtn?[NSString stringWithFormat:@"(%@)", previousBtnKey]:@""];
-            if (j == rowArray.count - 1) {
-                // 拼接最后一列的右侧间距
-                [hFormat appendFormat:@"-(==hPadding)-"];
-            }
-            
             // 子控件之间的行约束
             // 取出当前btn顶部依赖的控件，如果没有依赖则为父控件
             NSMutableString *vFormat = @"".mutableCopy;
@@ -262,12 +254,29 @@ static inline CGSize TextSize(NSString *text,
                     [constraints addObject:[NSLayoutConstraint constraintWithItem:btn attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:btn attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0.0]];
                 }
             }
+            // 布局根据padding的大小，自适应button的宽度，每个button的宽度相同
+            // 子控件之间的列约束
+            [hFormat appendFormat:@"-(==hPadding)-[%@%@]", buttonKey, previousBtn?[NSString stringWithFormat:@"(%@)", previousBtnKey]:@""];
+            /// 当前行与最大显示的行数相同，自适应宽度
+            if (rowArray.count >= self.maxNumberOfLine || self.isSizeAdaptive || self.items.count <= self.maxNumberOfLine) {
+                
+                if (j == rowArray.count - 1) {
+                    // 拼接最后一列的右侧间距
+                    [hFormat appendFormat:@"-(==hPadding)-|"];
+                }
+            }
+            else {
+                // 不自适应宽度, 宽度依赖上一行的宽度
+                if (dependentTopBtn) {
+                    [constraints addObject:[NSLayoutConstraint constraintWithItem:btn attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:dependentTopBtn attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0.0]];
+                }
+            }
             
             previousBtn = btn;
             previousBtnKey = buttonKey;
         }
         if (hFormat.length) {
-            [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"|%@|", hFormat] options:kNilOptions metrics:metrics views:hSubviewsDict]];
+            [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"|%@", hFormat] options:kNilOptions metrics:metrics views:hSubviewsDict]];
         }
         
     }
@@ -355,6 +364,21 @@ static inline CGSize TextSize(NSString *text,
     else {
         bottomHeightConstraint.constant = self.bottomView.frame.size.height;;
     }
+}
+
+- (void)setSizeAdaptive:(BOOL)sizeAdaptive animated:(BOOL)animated {
+    if (_sizeAdaptive == sizeAdaptive) {
+        return;
+    }
+    _sizeAdaptive = sizeAdaptive;
+    // 强制执行一次布局，因为有可能上次的未执行完，导致animation block中的布局与上次的一起执行了，导致没有动画想
+    [self layoutIfNeeded];
+    
+    [self setNeedsUpdateConstraints];
+    [self updateConstraintsIfNeeded];
+    [UIView animateWithDuration:animated ? 0.5 : 0.0 animations:^{
+        [self layoutIfNeeded];
+    }];
 }
 
 

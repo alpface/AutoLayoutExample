@@ -21,8 +21,13 @@
     // Do any additional setup after loading the view, typically from a nib.
     
     [self setupViews];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"show" style:UIBarButtonItemStylePlain target:self action:@selector(toggle:)];
-    
+    UIBarButtonItem *item1 = [[UIBarButtonItem alloc] initWithTitle:@"size adaptive" style:UIBarButtonItemStylePlain target:self action:@selector(toggle:)];
+    item1.accessibilityIdentifier = @"first";
+    [item1 setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor redColor]} forState:UIControlStateNormal];
+    [item1 setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor lightGrayColor]} forState:UIControlStateHighlighted];
+    UIBarButtonItem *item2 = [[UIBarButtonItem alloc] initWithTitle:@"show" style:UIBarButtonItemStylePlain target:self action:@selector(toggle:)];
+    item2.accessibilityIdentifier = @"second";
+    self.navigationItem.rightBarButtonItems = @[item1, item2];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientation:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -63,15 +68,21 @@
 }
 
 - (void)toggle:(UIBarButtonItem *)item {
-    if ([item.title isEqualToString:@"dismiss"]) {
-        item.title = @"show";
-        [self.viewController dismissWithAnimated:YES];
+    if ([item.accessibilityIdentifier isEqualToString:@"second"]) {
+        if ([item.title isEqualToString:@"dismiss"]) {
+            item.title = @"show";
+            [self.viewController dismissWithAnimated:YES];
+        }
+        else {
+            item.title = @"dismiss";
+            [self.viewController showWithAnimated:YES];
+            
+        }
     }
-    else {
-        item.title = @"dismiss";
-        [self.viewController showWithAnimated:YES];
-        
+    else if ([item.accessibilityIdentifier isEqualToString:@"first"]) {
+        [self.viewController.containerView setSizeAdaptive:!self.viewController.containerView.isSizeAdaptive animated:YES];
     }
+    
 }
 
 - (void)setupViews {
@@ -142,11 +153,20 @@
 }
 
 - (void)naviActionViewDidDismiss:(NaviActionContentView *)view {
-    self.navigationItem.rightBarButtonItem.title = @"show";
+    UIBarButtonItem *item = [self getRightBarButtonItemByIdentifier:@"second"];
+    item.title = @"show";
 }
 
 - (void)naviActionViewDidShow:(NaviActionContentView *)view {
-    self.navigationItem.rightBarButtonItem.title = @"dismiss";
+    UIBarButtonItem *item = [self getRightBarButtonItemByIdentifier:@"second"];
+    item.title = @"dismiss";
+}
+
+- (UIBarButtonItem *)getRightBarButtonItemByIdentifier:(NSString *)identifier {
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"accessibilityIdentifier==%@", identifier];
+    UIBarButtonItem *item = [self.navigationItem.rightBarButtonItems filteredArrayUsingPredicate:predicate].firstObject;
+    NSParameterAssert(item);
+    return item;
 }
 
 - (void)didReceiveMemoryWarning {
