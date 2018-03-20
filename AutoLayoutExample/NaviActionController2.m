@@ -155,17 +155,18 @@
         bottomView.backgroundColor = [UIColor clearColor];
         UIButton *button = [UIButton new];
         [button setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
-        button.layer.cornerRadius = 6.0;
-        button.layer.masksToBounds = YES;
-        button.layer.borderWidth = 1.0;
-        button.layer.borderColor = [UIColor lightGrayColor].CGColor;
         button.translatesAutoresizingMaskIntoConstraints = false;
         [button setTitle:@"cancel" forState:UIControlStateNormal];
         [button addTarget:self action:@selector(dismiss) forControlEvents:UIControlEventTouchUpInside];
         [bottomView addSubview:button];
-        CGFloat padding = [self getHPadding];
+        bottomView.backgroundColor = [UIColor clearColor];
+        [button setBackgroundColor:[UIColor whiteColor]];
+        button.layer.cornerRadius = 5.0;
+        button.layer.masksToBounds = YES;
+        button.layer.backgroundColor = [UIColor colorWithRed:80/255.0 green:80/255.0 blue:80/255.0 alpha:1.0].CGColor;
+        CGFloat padding = 10.0;
         [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(==padding)-[button]-(==padding)-|" options:kNilOptions metrics:@{@"padding": @(padding)} views:@{@"button": button}]];
-        [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(==5.0)-[button]-(==5.0)-|" options:kNilOptions metrics:nil views:@{@"button": button}]];
+        [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(==5.0)-[button]-(==padding)-|" options:kNilOptions metrics:@{@"padding": @(padding)} views:@{@"button": button}]];
         
         [containerView setBottomView:bottomView animated:NO height:50.0];
     }
@@ -275,9 +276,9 @@
 
 - (CGFloat)getHPadding {
     if (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation)) {
-        return [UIScreen mainScreen].bounds.size.width*0.13;
+        return [UIScreen mainScreen].bounds.size.width*0.1;
     }
-    return [UIScreen mainScreen].bounds.size.width*0.11;
+    return [UIScreen mainScreen].bounds.size.width*0.08;
 }
 
 

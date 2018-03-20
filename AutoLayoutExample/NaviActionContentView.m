@@ -383,7 +383,7 @@ static inline CGSize TextSize(NSString *text,
 - (NaviActionButton *)createButton {
     NaviActionButton *btn = [NaviActionButton new];
     btn.translatesAutoresizingMaskIntoConstraints = NO;
-    [btn setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+    [btn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     btn.imageView.contentMode = UIViewContentModeScaleAspectFit;
     btn.titleLabel.font = [UIFont systemFontOfSize:20.0];
     btn.titleLabel.textAlignment = NSTextAlignmentCenter;
@@ -416,9 +416,15 @@ static inline CGSize TextSize(NSString *text,
 
 @end
 
+@interface NaviActionButton ()
+
+@property (nonatomic, strong) UIView *cornerView;
+
+@end
+
 @implementation NaviActionButton {
     CGSize _titleLabelSize;
-    CGFloat padding;
+    CGFloat _middlePadding;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -429,6 +435,11 @@ static inline CGSize TextSize(NSString *text,
         self.imageView.contentMode = UIViewContentModeScaleAspectFit;
         self.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
         self.clipsToBounds = NO;
+        self.backgroundColor = [UIColor clearColor];
+        self.titleLabel.backgroundColor = [UIColor clearColor];
+        self.imageView.backgroundColor = [UIColor clearColor];
+        [self addSubview:self.cornerView];
+        _middlePadding = 20.0;
     }
     return self;
 }
@@ -437,16 +448,23 @@ static inline CGSize TextSize(NSString *text,
 // 图片太大，文本显示不出来，控制button中image的尺寸
 // imageRectForContentRect:和titleRectForContentRect:不能互相调用self.imageView和self.titleLael,不然会死循环
 - (CGRect)imageRectForContentRect:(CGRect)bounds {
+    CGRect rect = CGRectZero;
     if (CGSizeEqualToSize(_titleLabelSize, CGSizeZero)) {
-        return CGRectMake(0.0, 0.0, bounds.size.width, bounds.size.height);
+        rect = CGRectMake(0.0, 0.0, bounds.size.width, bounds.size.height);
     }
-    return CGRectMake(0.0, padding, bounds.size.width, bounds.size.height-_titleLabelSize.height-20.0-padding);
+    CGFloat imageScal = 0.3;
+    CGFloat width = MAX(0, MIN(bounds.size.width, bounds.size.height-_titleLabelSize.height-_middlePadding)) * imageScal;
+    CGFloat x = (self.bounds.size.width - width) * 0.5;
+    CGFloat y = (self.bounds.size.height - width - _titleLabelSize.height - _middlePadding) * 0.5;
+    rect = CGRectMake(x, y, width, width);
+    
+    return rect;
 }
 
 - (CGRect)titleRectForContentRect:(CGRect)bounds {
     if (self.imageView.image) {
         CGFloat width = _titleLabelSize.width + 10.0;
-        return CGRectMake((self.bounds.size.width-width)*0.5, self.imageView.bounds.size.height+padding, width, bounds.size.height-self.imageView.bounds.size.height);
+        return CGRectMake((self.bounds.size.width-width)*0.5, CGRectGetMaxY(self.imageView.frame)+_middlePadding, width, _titleLabelSize.height);
     }
     return CGRectMake(0.0, 0.0, bounds.size.width, bounds.size.height);
     
@@ -458,7 +476,25 @@ static inline CGSize TextSize(NSString *text,
     _titleLabelSize = TextSize(title, titleLabel.font, CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX), titleLabel.lineBreakMode);
 }
 
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    CGFloat wh = MIN(self.imageView.frame.size.width+20.0, self.bounds.size.width);
+    self.cornerView.frame = CGRectMake(0, 0, wh, wh);
+    self.cornerView.center = self.imageView.center;
+    self.cornerView.layer.cornerRadius = self.cornerView.frame.size.width * 0.5;
+}
 
+- (UIView *)cornerView {
+    if (_cornerView == nil) {
+        UIView *view = [UIView new];
+        _cornerView = view;
+        view.layer.borderWidth   = 1;
+        view.layer.masksToBounds = YES;
+        view.userInteractionEnabled = NO;
+        view.layer.backgroundColor = [UIColor colorWithRed:204/255.0 green:204/255.0 blue:204/255.0 alpha:1.0].CGColor;
+    }
+    return _cornerView;
+}
 @end
 
 @implementation NaviActionItem

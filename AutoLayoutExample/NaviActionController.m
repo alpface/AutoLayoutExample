@@ -78,7 +78,7 @@
     [self.viewConstraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[containerView]-(margin)-|" options:kNilOptions metrics:metrics views:@{@"containerView": self.containerView}]];
     CGFloat topMargin = CONTAINERVIEW_TOP_MAX_MARGIN;
     if (self.isShow == NO) {
-        topMargin = self.view.frame.size.height;
+        topMargin = [UIScreen mainScreen].bounds.size.height;
     }
     [self.viewConstraints addObject:[NSLayoutConstraint constraintWithItem:self.containerView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationGreaterThanOrEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:topMargin]];
     [NSLayoutConstraint activateConstraints:self.viewConstraints];
@@ -117,11 +117,24 @@
                 [self.delegate naviActionView:self.containerView didClickItem:item];
             }
         };
-        UILabel *bottomView = [UILabel new];
-        bottomView.backgroundColor = [UIColor greenColor];
-        bottomView.text = @"this is bottom";
-        bottomView.textAlignment = NSTextAlignmentCenter;
-        [containerView setBottomView:bottomView animated:NO height:100.0];
+        UIView *bottomView = [UIView new];
+        bottomView.backgroundColor = [UIColor clearColor];
+        UIButton *button = [UIButton new];
+        [button setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
+        button.translatesAutoresizingMaskIntoConstraints = false;
+        [button setTitle:@"cancel" forState:UIControlStateNormal];
+        [button addTarget:self action:@selector(dismiss) forControlEvents:UIControlEventTouchUpInside];
+        [bottomView addSubview:button];
+        bottomView.backgroundColor = [UIColor clearColor];
+        [button setBackgroundColor:[UIColor whiteColor]];
+        button.layer.cornerRadius = 5.0;
+        button.layer.masksToBounds = YES;
+        button.layer.backgroundColor = [UIColor colorWithRed:80/255.0 green:80/255.0 blue:80/255.0 alpha:1.0].CGColor;
+        CGFloat padding = 10.0;
+        [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(==padding)-[button]-(==padding)-|" options:kNilOptions metrics:@{@"padding": @(padding)} views:@{@"button": button}]];
+        [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(==5.0)-[button]-(==padding)-|" options:kNilOptions metrics:@{@"padding": @(padding)} views:@{@"button": button}]];
+        
+        [containerView setBottomView:bottomView animated:NO height:50.0];
     }
     return _containerView;
 }
@@ -146,7 +159,9 @@
 ////////////////////////////////////////////////////////////////////////
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////
-
+- (void)dismiss {
+    [self dismissWithAnimated:YES];
+}
 - (void)showWithAnimated:(BOOL)animated {
     
     self.show = YES;
@@ -178,7 +193,7 @@
 
 - (void)dismissWithAnimated:(BOOL)animated {
     self.show = NO;
-    [self containerViewTopConstraint].constant = self.view.frame.size.height;
+    [self containerViewTopConstraint].constant = [UIScreen mainScreen].bounds.size.height;
     if (animated) {
         [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
             self.backgroundView.alpha = 0.0;
