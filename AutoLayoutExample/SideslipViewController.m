@@ -59,11 +59,32 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
 
 @end
 
+@interface SideslipViewTableItem : NSObject
+
+@property (nonatomic, copy) UIImage *iconImage;
+@property (nonatomic, copy) NSString *title;
+@property (nonatomic, assign) BOOL isSwitchOn;
+@property (nonatomic, copy) void (^clickAction)(SideslipViewTableItem *item);
+@property (nonatomic, copy) void (^switchChangeBlock)(BOOL isSwitchOn);
+
+- (instancetype)initWithIconImage:(UIImage *)iconImage
+                            title:(NSString *)title
+                       isSwitchOn:(BOOL)isSwitchOn
+                      clickAction:(void (^)(SideslipViewTableItem *item))clickAction
+                switchChangeBlock:(void (^)(BOOL isSwitchOn))switchChangeBlock;
+
+
+@end
+
+@interface SideslipViewTableSection : NSObject
+
+@property (nonatomic, strong) NSMutableArray<SideslipViewTableItem *> *items;
+
+@end
+
 @interface SideslipTableViewCell : UITableViewCell
 
-@property (nonatomic, strong) UIImageView *iconView;
-@property (nonatomic, strong) UILabel *titleLabel;
-@property (nonatomic, strong) UISwitch *sw;
+@property (nonatomic, strong) SideslipViewTableItem *item;
 
 @end
 
@@ -80,6 +101,7 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
 @property (nonatomic, strong) NSMutableArray<NSLayoutConstraint *> *viewConstraints;
 @property (nonatomic, assign, getter=isShow) BOOL show;
 @property (nonatomic, copy) void (^ animationComletionHandler)(BOOL isShow);
+@property (nonatomic, strong) NSMutableArray<SideslipViewTableSection *> *tableSections;
 
 @end
 
@@ -88,6 +110,7 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    [self initData];
     [self setupViews];
 }
 
@@ -133,6 +156,48 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
     self.tableView.sideslipPanGestureRecognizerBlock = ^(UIPanGestureRecognizer *pan) {
         [weakSelf panGestureOnBackgroundView:pan];
     };
+}
+
+- (void)initData {
+    
+    SideslipViewTableSection *section = [[SideslipViewTableSection alloc] init];
+    SideslipViewTableItem *item1 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"preference_3g4g"] title:@"Traffic info" isSwitchOn:NO clickAction:^(SideslipViewTableItem *item) {
+        
+    } switchChangeBlock:^(BOOL isSwitchOn) {
+        
+    }];
+    [section.items addObject:item1];
+    SideslipViewTableItem *item2 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"preference_local_language"] title:@"Local names" isSwitchOn:NO clickAction:^(SideslipViewTableItem *item) {
+        
+    } switchChangeBlock:^(BOOL isSwitchOn) {
+        
+    }];
+    [section.items addObject:item2];
+    SideslipViewTableItem *item3 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"preference_boobuz_on_map"] title:@"Community" isSwitchOn:NO clickAction:^(SideslipViewTableItem *item) {
+        
+    } switchChangeBlock:^(BOOL isSwitchOn) {
+        
+    }];
+    [section.items addObject:item3];
+    SideslipViewTableItem *item4 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"icon_chat_experience"] title:@"Moments" isSwitchOn:NO clickAction:^(SideslipViewTableItem *item) {
+        
+    } switchChangeBlock:^(BOOL isSwitchOn) {
+        
+    }];
+    [section.items addObject:item4];
+    SideslipViewTableItem *item5 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"icon_chat_experience"] title:@"World maps moments" isSwitchOn:NO clickAction:^(SideslipViewTableItem *item) {
+        
+    } switchChangeBlock:^(BOOL isSwitchOn) {
+        
+    }];
+    [section.items addObject:item5];
+    SideslipViewTableItem *item6 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"icon_place_photo"] title:@"Places photos" isSwitchOn:NO clickAction:^(SideslipViewTableItem *item) {
+        
+    } switchChangeBlock:^(BOOL isSwitchOn) {
+        
+    }];
+    [section.items addObject:item6];
+    [self.tableSections addObject:section];
 }
 
 - (void)updateViewConstraints {
@@ -209,6 +274,14 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
         objc_setAssociatedObject([UIApplication sharedApplication], SideslipViewControllerKey, vc, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     if (vc.view.superview) {
+        [vc showWithAnimated:animated completion:^(BOOL isShow) {
+            if (completion) {
+                completion(isShow);
+            }
+            if (isShow == NO) {
+                [vc releaseSelf];
+            }
+        }];
         return vc;
     }
     [[UIApplication sharedApplication].delegate.window.rootViewController.view addSubview:vc.view];
@@ -337,7 +410,7 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
             // 根据手指移动的偏移量，移动sideslipTableView
             CGFloat trailingConstant = self.tableViewTrailingConstraint.constant;
             trailingConstant += translation.x;
-//            NSLog(@"%f", trailingConstant);
+            //            NSLog(@"%f", trailingConstant);
             if (trailingConstant <= 0) {
                 return;
             }
@@ -366,22 +439,26 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
         default:
             break;
     }
-
+    
 }
 
 - (void)updateSideslipProgress:(CGFloat)progress {
     
-//    CGFloat backgroundAlpha = self.backgroundView.alpha;
-//    backgroundAlpha = backgroundAlpha - backgroundAlpha * progress;
-//    self.backgroundView.alpha = backgroundAlpha;
-//    NSLog(@"backgroundAlpha:%f", backgroundAlpha);
+    //    CGFloat backgroundAlpha = self.backgroundView.alpha;
+    //    backgroundAlpha = backgroundAlpha - backgroundAlpha * progress;
+    //    self.backgroundView.alpha = backgroundAlpha;
+    //    NSLog(@"backgroundAlpha:%f", backgroundAlpha);
 }
 
 ////////////////////////////////////////////////////////////////////////
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return self.tableSections.count;
+}
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 20.0;
+    return self.tableSections[section].items.count;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -391,8 +468,21 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     SideslipTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:SideslipTableViewCellIdentifier forIndexPath:indexPath];
     
+    SideslipViewTableSection *section = self.tableSections[indexPath.section];
+    SideslipViewTableItem *item = section.items[indexPath.row];
+    cell.item = item;
     return cell;
 }
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    SideslipViewTableSection *section = self.tableSections[indexPath.section];
+    SideslipViewTableItem *item = section.items[indexPath.row];
+    if (item.clickAction) {
+        item.clickAction(item);
+    }
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 #pragma mark - Lazy
@@ -406,10 +496,11 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
 
 - (SideslipTableView *)tableView {
     if (!_tableView) {
-        SideslipTableView *tableView = [[SideslipTableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
+        SideslipTableView *tableView = [[SideslipTableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
         _tableView = tableView;
         tableView.dataSource = self;
         tableView.delegate = self;
+        tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
         [tableView registerClass:[SideslipTableViewCell class] forCellReuseIdentifier:SideslipTableViewCellIdentifier];
     }
     return _tableView;
@@ -422,7 +513,12 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
     return _viewConstraints;
 }
 
-
+- (NSMutableArray<SideslipViewTableSection *> *)tableSections {
+    if (!_tableSections) {
+        _tableSections = @[].mutableCopy;
+    }
+    return _tableSections;
+}
 
 
 @end
@@ -437,7 +533,7 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
         _sideslipPanGestureRecognizer = pan2;
         [self addGestureRecognizer:pan2];
         pan2.delegate = self;
-//        self.delaysContentTouches = NO;
+        //        self.delaysContentTouches = NO;
     }
     return self;
 }
@@ -530,6 +626,12 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
 
 @end
 
+@interface SideslipTableViewCell ()
+@property (nonatomic, strong) UIImageView *iconView;
+@property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) UISwitch *sw;
+@end
+
 @implementation SideslipTableViewCell
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
@@ -552,12 +654,22 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
     [NSLayoutConstraint constraintWithItem:self.iconView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0.0].active = YES;
     [NSLayoutConstraint constraintWithItem:self.iconView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeHeight multiplier:1.0 constant:-32].active = YES;
     [NSLayoutConstraint constraintWithItem:self.iconView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.iconView attribute:NSLayoutAttributeHeight multiplier:1.0 constant:0.0].active = YES;
-    [self test];
+    
+    [self.sw addTarget:self action:@selector(switchValueChange:) forControlEvents:UIControlEventValueChanged];
+    
 }
 
-- (void)test {
-    self.iconView.image = [UIImage imageNamed:@"icon_signal_weak"];
-    self.titleLabel.text = @"路况";
+- (void)switchValueChange:(UISwitch *)sw {
+    self.item.isSwitchOn = sw.isOn;
+    
+}
+
+- (void)setItem:(SideslipViewTableItem *)item {
+    _item = item;
+    
+    self.iconView.image = item.iconImage;
+    self.titleLabel.text = item.title;
+    self.sw.on = item.isSwitchOn;
 }
 
 - (UIImageView *)iconView {
@@ -678,20 +790,29 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
     [self.button3D setImage:[UIImage imageNamed:@"layer_3d_unselected"] forState:UIControlStateNormal];
     [self.button2D setImage:[UIImage imageNamed:@"layer_2d_selected"] forState:UIControlStateSelected];
     [self.button3D setImage:[UIImage imageNamed:@"layer_3d_selected"] forState:UIControlStateSelected];
-    [self.button2D setTitle:@"2D地图" forState:UIControlStateNormal];
-    [self.button3D setTitle:@"3D地图" forState:UIControlStateNormal];
+    [self.button2D setTitle:@"2D map" forState:UIControlStateNormal];
+    [self.button3D setTitle:@"3D map" forState:UIControlStateNormal];
+    [self.button2D setTitleColor:[UIColor colorWithRed:0.0/255.0 green:105.0/255.0 blue:210.0/255.0 alpha:1.0] forState:UIControlStateSelected];
+    [self.button3D setTitleColor:[UIColor colorWithRed:0.0/255.0 green:105.0/255.0 blue:210.0/255.0 alpha:1.0] forState:UIControlStateSelected];
     [self.button2D addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
     [self.button3D addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
     
-    NSDictionary *viewsDict = @{@"button2D": self.button2D, @"button3D": self.button3D};
+    UIView *lineView = [UIView new];
+    [self addSubview:lineView];
+    lineView.translatesAutoresizingMaskIntoConstraints = false;
+    lineView.backgroundColor = [UIColor colorWithRed:225/255.0 green:225/255.0 blue:225/255.0 alpha:1.0];
+    
+    NSDictionary *viewsDict = @{@"button2D": self.button2D, @"button3D": self.button3D, @"lineView": lineView};
     CGFloat padding = 10.0;
     CGFloat margin = 32.0;
     NSDictionary *metrics = @{@"padding": @(padding), @"margin": @(margin)};
     [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(margin)-[button2D]-(==padding)-[button3D]-(margin)-|" options:NSLayoutFormatAlignAllCenterY metrics:metrics views:viewsDict]];
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(40.0)-[button2D]-(==padding)-|" options:kNilOptions metrics:metrics views:viewsDict]];
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(40.0)-[button3D]-(==padding)-|" options:kNilOptions metrics:metrics views:viewsDict]];
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(40.0)-[button2D]-(==padding)-[lineView]" options:kNilOptions metrics:metrics views:viewsDict]];
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(40.0)-[button3D]-(==padding)-[lineView]" options:kNilOptions metrics:metrics views:viewsDict]];
     [NSLayoutConstraint constraintWithItem:self.button2D attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.button3D attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0.0].active = YES;
     [NSLayoutConstraint constraintWithItem:self.button2D attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.button3D attribute:NSLayoutAttributeHeight multiplier:1.0 constant:0.0].active = YES;
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[lineView]|" options:kNilOptions metrics:nil views:viewsDict]];
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[lineView(==5.0)]|" options:kNilOptions metrics:nil views:viewsDict]];
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -727,3 +848,42 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
 
 @end
 
+@implementation SideslipViewTableItem
+
+- (instancetype)initWithIconImage:(UIImage *)iconImage
+                            title:(NSString *)title
+                       isSwitchOn:(BOOL)isSwitchOn
+                      clickAction:(void (^)(SideslipViewTableItem *item))clickAction
+                switchChangeBlock:(void (^)(BOOL))switchChangeBlock    {
+    if (self = [super init]) {
+        self.iconImage = iconImage;
+        self.title = title;
+        self.isSwitchOn = isSwitchOn;
+        self.clickAction = clickAction;
+        self.switchChangeBlock = switchChangeBlock;
+    }
+    return self;
+}
+
+- (void)setIsSwitchOn:(BOOL)isSwitchOn {
+    if (_isSwitchOn == isSwitchOn) {
+        return;
+    }
+    _isSwitchOn = isSwitchOn;
+    if (self.switchChangeBlock) {
+        self.switchChangeBlock(isSwitchOn);
+    }
+}
+@end
+
+@implementation SideslipViewTableSection
+
+- (NSMutableArray<SideslipViewTableItem *> *)items {
+    if (!_items) {
+        _items = @[].mutableCopy;
+    }
+    return _items;
+}
+
+
+@end
