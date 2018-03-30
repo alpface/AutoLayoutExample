@@ -262,7 +262,7 @@ static inline CGSize TextSize(NSString *text,
                 
                 if (j == rowArray.count - 1) {
                     // 拼接最后一列的右侧间距
-                    [hFormat appendFormat:@"-(==hPadding)-|"];
+                    [hFormat appendFormat:@"-(==hPadding@998)-|"];
                 }
             }
             else {

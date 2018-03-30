@@ -37,7 +37,7 @@
 @interface  NaviActionContentView : UIView
 @property (nonatomic, strong) NSMutableArray<NaviActionButton *> *buttonArray;
 @property (nonatomic, strong) NSMutableArray<NaviActionItem *> *items;
-// item高度
+/// item高度
 @property (nonatomic, assign) CGFloat itemHeight;
 /// 每行item的个数, 此方法会根据设置的间距itemHPadding值，自适应item的宽度, 最小为1
 @property (nonatomic, assign) IBInspectable NSUInteger maxNumberOfLine;

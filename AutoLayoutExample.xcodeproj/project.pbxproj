@@ -11,6 +11,8 @@
 		D06A6A38205B8F7C0096304F /* NaviActionContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = D06A6A37205B8F7C0096304F /* NaviActionContentView.m */; };
 		D06A6A39205B91B30096304F /* NaviActionController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0AF177E2059163300D7A460 /* NaviActionController.m */; };
 		D06A6A3C205B93AB0096304F /* NaviViewController2.m in Sources */ = {isa = PBXBuildFile; fileRef = D06A6A3B205B93AB0096304F /* NaviViewController2.m */; };
+		D0A68506206DF1820014FE56 /* SideslipViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0A68505206DF1820014FE56 /* SideslipViewController.m */; };
+		D0A68509206DF6350014FE56 /* SideslipExampleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0A68508206DF6350014FE56 /* SideslipExampleViewController.m */; };
 		D0AF1768205915EF00D7A460 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D0AF1767205915EF00D7A460 /* AppDelegate.m */; };
 		D0AF176B205915EF00D7A460 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0AF176A205915EF00D7A460 /* ViewController.m */; };
 		D0AF176E205915EF00D7A460 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0AF176C205915EF00D7A460 /* Main.storyboard */; };
@@ -29,6 +31,10 @@
 		D06A6A37205B8F7C0096304F /* NaviActionContentView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NaviActionContentView.m; sourceTree = "<group>"; };
 		D06A6A3A205B93AB0096304F /* NaviViewController2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NaviViewController2.h; sourceTree = "<group>"; };
 		D06A6A3B205B93AB0096304F /* NaviViewController2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NaviViewController2.m; sourceTree = "<group>"; };
+		D0A68504206DF1820014FE56 /* SideslipViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SideslipViewController.h; sourceTree = "<group>"; };
+		D0A68505206DF1820014FE56 /* SideslipViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SideslipViewController.m; sourceTree = "<group>"; };
+		D0A68507206DF6350014FE56 /* SideslipExampleViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SideslipExampleViewController.h; sourceTree = "<group>"; };
+		D0A68508206DF6350014FE56 /* SideslipExampleViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SideslipExampleViewController.m; sourceTree = "<group>"; };
 		D0AF1763205915EF00D7A460 /* AutoLayoutExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AutoLayoutExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0AF1766205915EF00D7A460 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D0AF1767205915EF00D7A460 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -110,6 +116,10 @@
 				D0BE5A34205A347D006CE5EE /* DragViewController.m */,
 				D0BE5A58205A4972006CE5EE /* LabelViewController.h */,
 				D0BE5A59205A4972006CE5EE /* LabelViewController.m */,
+				D0A68504206DF1820014FE56 /* SideslipViewController.h */,
+				D0A68505206DF1820014FE56 /* SideslipViewController.m */,
+				D0A68507206DF6350014FE56 /* SideslipExampleViewController.h */,
+				D0A68508206DF6350014FE56 /* SideslipExampleViewController.m */,
 			);
 			name = Example;
 			sourceTree = "<group>";
@@ -187,9 +197,11 @@
 			files = (
 				D0AF176B205915EF00D7A460 /* ViewController.m in Sources */,
 				D06A6A3C205B93AB0096304F /* NaviViewController2.m in Sources */,
+				D0A68506206DF1820014FE56 /* SideslipViewController.m in Sources */,
 				D0AF1776205915EF00D7A460 /* main.m in Sources */,
 				D0AF1768205915EF00D7A460 /* AppDelegate.m in Sources */,
 				D0BE5A32205A3215006CE5EE /* NaviViewController.m in Sources */,
+				D0A68509206DF6350014FE56 /* SideslipExampleViewController.m in Sources */,
 				D06A6A39205B91B30096304F /* NaviActionController.m in Sources */,
 				D06A6A38205B8F7C0096304F /* NaviActionContentView.m in Sources */,
 				D06A6A35205B86410096304F /* NaviActionController2.m in Sources */,

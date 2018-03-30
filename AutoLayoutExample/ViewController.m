@@ -11,6 +11,7 @@
 #import "DragViewController.h"
 #import "LabelViewController.h"
 #import "NaviViewController2.h"
+#import "SideslipExampleViewController.h"
 
 @interface AutoLayoutExampleItem : NSObject
 
@@ -41,7 +42,7 @@
                         [[AutoLayoutExampleItem alloc] initWithTitle:@"Navi action menu 2" exampleClass:[NaviViewController2 class]],
                         [[AutoLayoutExampleItem alloc] initWithTitle:@"Drag" exampleClass:[DragViewController class]],
                         [[AutoLayoutExampleItem alloc] initWithTitle:@"Label Text" exampleClass:[LabelViewController class]],
-                        
+                        [[AutoLayoutExampleItem alloc] initWithTitle:@"Sideslip" exampleClass:[SideslipExampleViewController class]],
                         ].mutableCopy;
     
     [self.tableView reloadData];
