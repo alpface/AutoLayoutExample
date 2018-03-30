@@ -8,6 +8,7 @@
 
 #import "SideslipViewController.h"
 #import <objc/runtime.h>
+#import "NaviActionContentView.h"
 
 static CGFloat TableViewWidthMultiplierValue = 0.6;
 static NSString * const SideslipTableViewCellIdentifier = @"SideslipTableViewCellIdentifier";
@@ -18,6 +19,10 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
     SideslipTableViewScrollDirectionVertical,
     SideslipTableViewScrollDirectionHorizontal
 };
+
+@interface SideslipTableViewHeaderView : UIView
+
+@end
 
 @interface SideslipTableViewCell : UITableViewCell
 
@@ -71,6 +76,11 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
     }
     [self.view addSubview:self.backgroundView];
     [self.view addSubview:self.tableView];
+    
+    SideslipTableViewHeaderView *headerView = [SideslipTableViewHeaderView new];
+    headerView.frame = CGRectMake(0, 0, 0, 150.0);
+    self.tableView.tableHeaderView = headerView;
+    
     self.view.backgroundColor = [UIColor clearColor];
     self.backgroundView.backgroundColor = [UIColor blackColor];
     self.backgroundView.alpha = 0.0;
@@ -544,4 +554,60 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
 
 @end
 
+@interface SideslipTableViewHeaderView ()
 
+@property (nonatomic, strong) NaviActionContentView *containerView;
+
+@end
+
+@implementation SideslipTableViewHeaderView
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
+        [self setupUI];
+    }
+    return self;
+}
+
+- (void)setupUI {
+    [self addSubview:self.containerView];
+    self.containerView.translatesAutoresizingMaskIntoConstraints = false;
+    
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[containerView]|" options:kNilOptions metrics:nil views:@{@"containerView": self.containerView}]];
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[containerView]|" options:kNilOptions metrics:nil views:@{@"containerView": self.containerView}]];
+    
+    self.containerView.backgroundColor = [UIColor whiteColor];
+    self.containerView.layer.cornerRadius = 5.0;
+    self.containerView.layer.masksToBounds = true;
+    self.containerView.maxNumberOfLine = 2;
+    self.containerView.itemVPadding = 15.0;
+    self.containerView.itemHPadding = 30.0;
+    // 设置这两个属性会导致屏幕旋转时，containerView的高度会超出父视图
+    //    self.containerView.itemHeight = 100.0;
+    //    self.containerView.square = YES;
+    
+    
+    NSMutableArray *items = @[].mutableCopy;
+    for (NSInteger i = 0; i < 2; i++) {
+        NaviActionItem *item = [[NaviActionItem alloc] initWithTitle:[NSString stringWithFormat:@"main%ld", i] image:[UIImage imageNamed:@"icon_man"] clickBlock:^(NaviActionItem *item) {
+            
+        }];
+        [items addObject:item];
+    }
+    self.containerView.items = items;
+    [self.containerView reloadItems];
+}
+
+- (NaviActionContentView *)containerView {
+    if (!_containerView) {
+        NaviActionContentView *containerView = [[NaviActionContentView alloc] initWithFrame:CGRectZero];
+        _containerView = containerView;
+        containerView.buttonActionBlock = ^(NaviActionItem *item) {
+            if (item.clickBlock) {
+                item.clickBlock(item);
+            }
+        };
+    }
+    return _containerView;
+}
+@end
