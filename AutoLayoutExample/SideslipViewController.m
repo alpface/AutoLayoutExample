@@ -10,7 +10,8 @@
 #import <objc/runtime.h>
 
 
-static CGFloat TableViewWidthMultiplierValue = 0.6;
+static CGFloat const TableViewWidthMultiplierValue = 0.6;
+static CGFloat const BackgroundViewMaxAlpha = 0.3;
 static void * SideslipViewControllerKey = &SideslipViewControllerKey;
 
 typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
@@ -238,7 +239,7 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
     //    [self.view layoutIfNeeded];
     // 另外一种方案：加入到主队列中执行本次动画
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.backgroundView.alpha = 0.3;
+        self.backgroundView.alpha = BackgroundViewMaxAlpha;
         [self _updateConstraints];
         [UIView animateWithDuration:animated ? 0.3 : 0.0 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
             [self.view layoutIfNeeded];
@@ -338,10 +339,8 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
 
 - (void)updateSideslipProgress:(CGFloat)progress {
     
-    //    CGFloat backgroundAlpha = self.backgroundView.alpha;
-    //    backgroundAlpha = backgroundAlpha - backgroundAlpha * progress;
-    //    self.backgroundView.alpha = backgroundAlpha;
-    //    NSLog(@"backgroundAlpha:%f", backgroundAlpha);
+    self.backgroundView.alpha = BackgroundViewMaxAlpha * (1.0 - progress);
+    NSLog(@"backgroundAlpha:%f", self.backgroundView.alpha);
 }
 
 
