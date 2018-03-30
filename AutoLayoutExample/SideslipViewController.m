@@ -401,11 +401,11 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
             break;
         }
         case SideslipTableViewScrollDirectionHorizontal: {
-            if ([gestureRecognizer isEqual:self.panGestureRecognizer]) {
-                return NO;
+            if ([gestureRecognizer isEqual:_sideslipPanGestureRecognizer]) {
+                return YES;
             }
             else {
-                return YES;
+                return NO;
             }
             break;
         }
@@ -432,11 +432,11 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
             break;
         }
         case SideslipTableViewScrollDirectionHorizontal: {
-            if ([gestureRecognizer isEqual:self.panGestureRecognizer]) {
-                return NO;
+            if ([gestureRecognizer isEqual:_sideslipPanGestureRecognizer]) {
+                return YES;
             }
             else {
-                return YES;
+                return NO;
             }
             break;
         }
