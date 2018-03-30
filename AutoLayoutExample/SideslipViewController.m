@@ -8,7 +8,38 @@
 
 #import "SideslipViewController.h"
 #import <objc/runtime.h>
-#import "NaviActionContentView.h"
+
+static inline CGSize TextSize(NSString *text,
+                              UIFont *font,
+                              CGSize constrainedSize,
+                              NSLineBreakMode lineBreakMode)
+{
+    if (!text) {
+        return CGSizeZero;
+    }
+    CGSize size;
+    if ([NSAttributedString instancesRespondToSelector:@selector(boundingRectWithSize:options:context:)]) {
+        NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+        paragraphStyle.lineBreakMode = lineBreakMode;
+        NSDictionary *attributes = @{
+                                     NSFontAttributeName: font,
+                                     NSParagraphStyleAttributeName: paragraphStyle,
+                                     };
+        NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:text attributes:attributes];
+        CGSize size = [attributedString boundingRectWithSize:constrainedSize
+                                                     options:(NSStringDrawingUsesDeviceMetrics |
+                                                              NSStringDrawingUsesLineFragmentOrigin |
+                                                              NSStringDrawingUsesFontLeading)
+                                                     context:NULL].size;
+        return CGSizeMake(ceilf(size.width), ceilf(size.height));
+    } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        size = [text sizeWithFont:font constrainedToSize:constrainedSize lineBreakMode:lineBreakMode];
+#pragma clang diagnostic pop
+    }
+    return CGSizeMake(ceilf(size.width), ceilf(size.height));
+}
 
 static CGFloat TableViewWidthMultiplierValue = 0.6;
 static NSString * const SideslipTableViewCellIdentifier = @"SideslipTableViewCellIdentifier";
@@ -21,6 +52,10 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
 };
 
 @interface SideslipTableViewHeaderView : UIView
+
+@end
+
+@interface SideslipTableViewHeaderViewButton : UIButton
 
 @end
 
@@ -78,7 +113,7 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
     [self.view addSubview:self.tableView];
     
     SideslipTableViewHeaderView *headerView = [SideslipTableViewHeaderView new];
-    headerView.frame = CGRectMake(0, 0, 0, 150.0);
+    headerView.frame = CGRectMake(0, 0, 0, 120.0);
     self.tableView.tableHeaderView = headerView;
     
     self.view.backgroundColor = [UIColor clearColor];
@@ -350,7 +385,7 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 50.0;
+    return 57.0;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -513,9 +548,9 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
     self.sw.translatesAutoresizingMaskIntoConstraints = false;
     
     CGFloat margin = 16.0;
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(==margin)-[iconView]-(==margin)-[titleLabel]-(<=margin)-[sw]-(==margin)-|" options:NSLayoutFormatAlignAllCenterY metrics:@{@"margin": @(margin)} views:@{@"iconView": self.iconView, @"titleLabel": self.titleLabel, @"sw": self.sw}]];
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(==margin)-[iconView]-(==margin)-[titleLabel]-(<=margin)-[sw]-(==13.0)-|" options:NSLayoutFormatAlignAllCenterY metrics:@{@"margin": @(margin)} views:@{@"iconView": self.iconView, @"titleLabel": self.titleLabel, @"sw": self.sw}]];
     [NSLayoutConstraint constraintWithItem:self.iconView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0.0].active = YES;
-    [NSLayoutConstraint constraintWithItem:self.iconView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeHeight multiplier:1.0 constant:-10.0].active = YES;
+    [NSLayoutConstraint constraintWithItem:self.iconView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeHeight multiplier:1.0 constant:-32].active = YES;
     [NSLayoutConstraint constraintWithItem:self.iconView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.iconView attribute:NSLayoutAttributeHeight multiplier:1.0 constant:0.0].active = YES;
     [self test];
 }
@@ -539,6 +574,7 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
         UILabel *label = [UILabel new];
         label.numberOfLines = 1;
         label.lineBreakMode = NSLineBreakByTruncatingTail;
+        label.font = [UIFont systemFontOfSize:13.0];
         _titleLabel = label;
     }
     return _titleLabel;
@@ -548,17 +584,80 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
     if (!_sw) {
         UISwitch *sw = [[UISwitch alloc] init];
         _sw = sw;
+        sw.onTintColor = [UIColor colorWithRed:0.0/255.0 green:105.0/255.0 blue:210.0/255.0 alpha:1.0];
+        sw.tintColor = [UIColor colorWithRed:215/255.0 green:216/255.0 blue:215/255.0 alpha:1.0];
+        sw.transform = CGAffineTransformMakeScale( 0.65, 0.65);
     }
     return _sw;
 }
 
 @end
 
-@interface SideslipTableViewHeaderView ()
+@implementation SideslipTableViewHeaderViewButton {
+    CGSize _titleLabelSize;
+    CGFloat _middlePadding;
+}
 
-@property (nonatomic, strong) NaviActionContentView *containerView;
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.titleLabel.textAlignment = NSTextAlignmentCenter;
+        self.imageView.contentMode = UIViewContentModeScaleAspectFit;
+        self.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+        self.clipsToBounds = NO;
+        self.backgroundColor = [UIColor clearColor];
+        self.titleLabel.backgroundColor = [UIColor clearColor];
+        [self setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
+        self.imageView.backgroundColor = [UIColor clearColor];
+        self.titleLabel.font = [UIFont systemFontOfSize:11.0];
+        _middlePadding = 6.0;
+    }
+    return self;
+}
+
+
+// 图片太大，文本显示不出来，控制button中image的尺寸
+// imageRectForContentRect:和titleRectForContentRect:不能互相调用self.imageView和self.titleLael,不然会死循环
+- (CGRect)imageRectForContentRect:(CGRect)bounds {
+    CGRect rect = CGRectZero;
+    if (CGSizeEqualToSize(_titleLabelSize, CGSizeZero)) {
+        rect = CGRectMake(0.0, 0.0, bounds.size.width, bounds.size.height);
+    }
+    CGFloat imageScal = 1.0;
+    CGFloat width = MAX(0, bounds.size.width - _middlePadding) * imageScal;
+    CGFloat height = MAX(0, bounds.size.height-_titleLabelSize.height-_middlePadding) * imageScal;
+    CGFloat x = (self.bounds.size.width - width) * 0.5;
+    CGFloat y = (self.bounds.size.height - height - _titleLabelSize.height - _middlePadding) * 0.5;
+    rect = CGRectMake(x, y, width, height);
+    
+    return rect;
+}
+
+- (CGRect)titleRectForContentRect:(CGRect)bounds {
+    if (self.imageView.image) {
+        CGFloat width = _titleLabelSize.width + 10.0;
+        return CGRectMake((self.bounds.size.width-width)*0.5, CGRectGetMaxY(self.imageView.frame)+_middlePadding, width, _titleLabelSize.height);
+    }
+    return CGRectMake(0.0, 0.0, bounds.size.width, bounds.size.height);
+    
+}
+
+- (void)setTitle:(NSString *)title forState:(UIControlState)state {
+    [super setTitle:title forState:state];
+    UILabel *titleLabel = self.titleLabel;
+    _titleLabelSize = TextSize(title, titleLabel.font, CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX), titleLabel.lineBreakMode);
+}
 
 @end
+
+@interface SideslipTableViewHeaderView ()
+
+@property (nonatomic, strong) SideslipTableViewHeaderViewButton *button2D;
+@property (nonatomic, strong) SideslipTableViewHeaderViewButton *button3D;
+@property (nonatomic, weak) SideslipTableViewHeaderViewButton *lastSelectedButton;
+@end
+
 
 @implementation SideslipTableViewHeaderView
 
@@ -570,44 +669,61 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
 }
 
 - (void)setupUI {
-    [self addSubview:self.containerView];
-    self.containerView.translatesAutoresizingMaskIntoConstraints = false;
+    [self addSubview:self.button2D];
+    [self addSubview:self.button3D];
     
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[containerView]|" options:kNilOptions metrics:nil views:@{@"containerView": self.containerView}]];
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[containerView]|" options:kNilOptions metrics:nil views:@{@"containerView": self.containerView}]];
+    self.button2D.translatesAutoresizingMaskIntoConstraints = false;
+    self.button3D.translatesAutoresizingMaskIntoConstraints = false;
+    [self.button2D setImage:[UIImage imageNamed:@"layer_2d_unselected"] forState:UIControlStateNormal];
+    [self.button3D setImage:[UIImage imageNamed:@"layer_3d_unselected"] forState:UIControlStateNormal];
+    [self.button2D setImage:[UIImage imageNamed:@"layer_2d_selected"] forState:UIControlStateSelected];
+    [self.button3D setImage:[UIImage imageNamed:@"layer_3d_selected"] forState:UIControlStateSelected];
+    [self.button2D setTitle:@"2D地图" forState:UIControlStateNormal];
+    [self.button3D setTitle:@"3D地图" forState:UIControlStateNormal];
+    [self.button2D addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [self.button3D addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
     
-    self.containerView.backgroundColor = [UIColor whiteColor];
-    self.containerView.layer.cornerRadius = 5.0;
-    self.containerView.layer.masksToBounds = true;
-    self.containerView.maxNumberOfLine = 2;
-    self.containerView.itemVPadding = 15.0;
-    self.containerView.itemHPadding = 30.0;
-    // 设置这两个属性会导致屏幕旋转时，containerView的高度会超出父视图
-    //    self.containerView.itemHeight = 100.0;
-    //    self.containerView.square = YES;
-    
-    
-    NSMutableArray *items = @[].mutableCopy;
-    for (NSInteger i = 0; i < 2; i++) {
-        NaviActionItem *item = [[NaviActionItem alloc] initWithTitle:[NSString stringWithFormat:@"main%ld", i] image:[UIImage imageNamed:@"icon_man"] clickBlock:^(NaviActionItem *item) {
-            
-        }];
-        [items addObject:item];
-    }
-    self.containerView.items = items;
-    [self.containerView reloadItems];
+    NSDictionary *viewsDict = @{@"button2D": self.button2D, @"button3D": self.button3D};
+    CGFloat padding = 10.0;
+    CGFloat margin = 32.0;
+    NSDictionary *metrics = @{@"padding": @(padding), @"margin": @(margin)};
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(margin)-[button2D]-(==padding)-[button3D]-(margin)-|" options:NSLayoutFormatAlignAllCenterY metrics:metrics views:viewsDict]];
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(40.0)-[button2D]-(==padding)-|" options:kNilOptions metrics:metrics views:viewsDict]];
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(40.0)-[button3D]-(==padding)-|" options:kNilOptions metrics:metrics views:viewsDict]];
+    [NSLayoutConstraint constraintWithItem:self.button2D attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.button3D attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0.0].active = YES;
+    [NSLayoutConstraint constraintWithItem:self.button2D attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.button3D attribute:NSLayoutAttributeHeight multiplier:1.0 constant:0.0].active = YES;
 }
 
-- (NaviActionContentView *)containerView {
-    if (!_containerView) {
-        NaviActionContentView *containerView = [[NaviActionContentView alloc] initWithFrame:CGRectZero];
-        _containerView = containerView;
-        containerView.buttonActionBlock = ^(NaviActionItem *item) {
-            if (item.clickBlock) {
-                item.clickBlock(item);
-            }
-        };
-    }
-    return _containerView;
+////////////////////////////////////////////////////////////////////////
+#pragma mark - Actions
+////////////////////////////////////////////////////////////////////////
+
+- (void)buttonAction:(SideslipTableViewHeaderViewButton *)button {
+    self.lastSelectedButton.selected = NO;
+    
+    button.selected = YES;
+    self.lastSelectedButton = button;
 }
+
+////////////////////////////////////////////////////////////////////////
+#pragma mark - Lazy
+////////////////////////////////////////////////////////////////////////
+
+- (SideslipTableViewHeaderViewButton *)button2D {
+    if (!_button2D) {
+        _button2D = [SideslipTableViewHeaderViewButton new];
+        _button2D.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    }
+    return _button2D;
+}
+
+- (SideslipTableViewHeaderViewButton *)button3D {
+    if (!_button3D) {
+        _button3D = [SideslipTableViewHeaderViewButton new];
+        _button3D.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    }
+    return _button3D;
+}
+
 @end
+
