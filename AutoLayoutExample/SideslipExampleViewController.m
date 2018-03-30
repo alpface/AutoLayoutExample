@@ -7,7 +7,7 @@
 //
 
 #import "SideslipExampleViewController.h"
-#import "SideslipViewController.h"
+#import "MapLayerOptionViewController.h"
 
 @interface SideslipExampleViewController ()
 @end
@@ -25,7 +25,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientation:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [SideslipViewController showWithAnimated:YES completion:^(BOOL isShow) {
+        [MapLayerOptionViewController showWithAnimated:YES completion:^(BOOL isShow) {
             if (isShow) {
                 item2.title = @"dismiss";
             }
@@ -56,7 +56,7 @@
 - (void)toggle:(UIBarButtonItem *)item {
     if ([item.accessibilityIdentifier isEqualToString:@"second"]) {
         if ([item.title isEqualToString:@"dismiss"]) {
-            [SideslipViewController dismissWithAnimated:YES completion:^(BOOL isShow) {
+            [MapLayerOptionViewController dismissWithAnimated:YES completion:^(BOOL isShow) {
                 if (isShow) {
                     item.title = @"dismiss";
                 }
@@ -67,7 +67,7 @@
 
         }
         else {
-            [SideslipViewController showWithAnimated:YES completion:^(BOOL isShow) {
+            [MapLayerOptionViewController showWithAnimated:YES completion:^(BOOL isShow) {
                 if (isShow) {
                     item.title = @"dismiss";
                 }
@@ -85,6 +85,14 @@
             [self.view layoutIfNeeded];
         }];
     });
+}
+
+- (BOOL)prefersStatusBarHidden {
+    MapLayerOptionViewController *optionVc = [MapLayerOptionViewController displaySideslipViewController];
+    if (optionVc) {
+        return [optionVc prefersStatusBarHidden];
+    }
+    return NO;
 }
 
 @end

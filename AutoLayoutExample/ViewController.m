@@ -39,10 +39,10 @@
     [self setupViews];
     self.tableArray = @[
                         [[AutoLayoutExampleItem alloc] initWithTitle:@"Navi action menu" exampleClass:[NaviViewController class]],
-                        [[AutoLayoutExampleItem alloc] initWithTitle:@"Navi action menu 2" exampleClass:[NaviViewController2 class]],
+                        [[AutoLayoutExampleItem alloc] initWithTitle:@"导航页弹框" exampleClass:[NaviViewController2 class]],
                         [[AutoLayoutExampleItem alloc] initWithTitle:@"Drag" exampleClass:[DragViewController class]],
-                        [[AutoLayoutExampleItem alloc] initWithTitle:@"Label Text" exampleClass:[LabelViewController class]],
-                        [[AutoLayoutExampleItem alloc] initWithTitle:@"Sideslip" exampleClass:[SideslipExampleViewController class]],
+                        [[AutoLayoutExampleItem alloc] initWithTitle:@"Label" exampleClass:[LabelViewController class]],
+                        [[AutoLayoutExampleItem alloc] initWithTitle:@"百度地图 图层" exampleClass:[SideslipExampleViewController class]],
                         ].mutableCopy;
     
     [self.tableView reloadData];

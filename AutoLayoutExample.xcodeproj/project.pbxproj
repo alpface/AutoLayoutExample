@@ -22,6 +22,7 @@
 		D0BE5A32205A3215006CE5EE /* NaviViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BE5A31205A3215006CE5EE /* NaviViewController.m */; };
 		D0BE5A35205A347D006CE5EE /* DragViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BE5A34205A347D006CE5EE /* DragViewController.m */; };
 		D0BE5A5A205A4972006CE5EE /* LabelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BE5A59205A4972006CE5EE /* LabelViewController.m */; };
+		D2EA88AC206E7F7D007165B7 /* MapLayerOptionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D2EA88AB206E7F7D007165B7 /* MapLayerOptionViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -53,6 +54,8 @@
 		D0BE5A34205A347D006CE5EE /* DragViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DragViewController.m; sourceTree = "<group>"; };
 		D0BE5A58205A4972006CE5EE /* LabelViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LabelViewController.h; sourceTree = "<group>"; };
 		D0BE5A59205A4972006CE5EE /* LabelViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LabelViewController.m; sourceTree = "<group>"; };
+		D2EA88AA206E7F7D007165B7 /* MapLayerOptionViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapLayerOptionViewController.h; sourceTree = "<group>"; };
+		D2EA88AB206E7F7D007165B7 /* MapLayerOptionViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapLayerOptionViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,6 +121,8 @@
 				D0BE5A59205A4972006CE5EE /* LabelViewController.m */,
 				D0A68504206DF1820014FE56 /* SideslipViewController.h */,
 				D0A68505206DF1820014FE56 /* SideslipViewController.m */,
+				D2EA88AA206E7F7D007165B7 /* MapLayerOptionViewController.h */,
+				D2EA88AB206E7F7D007165B7 /* MapLayerOptionViewController.m */,
 				D0A68507206DF6350014FE56 /* SideslipExampleViewController.h */,
 				D0A68508206DF6350014FE56 /* SideslipExampleViewController.m */,
 			);
@@ -202,6 +207,7 @@
 				D0AF1768205915EF00D7A460 /* AppDelegate.m in Sources */,
 				D0BE5A32205A3215006CE5EE /* NaviViewController.m in Sources */,
 				D0A68509206DF6350014FE56 /* SideslipExampleViewController.m in Sources */,
+				D2EA88AC206E7F7D007165B7 /* MapLayerOptionViewController.m in Sources */,
 				D06A6A39205B91B30096304F /* NaviActionController.m in Sources */,
 				D06A6A38205B8F7C0096304F /* NaviActionContentView.m in Sources */,
 				D06A6A35205B86410096304F /* NaviActionController2.m in Sources */,
