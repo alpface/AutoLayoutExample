@@ -7,14 +7,25 @@
 //
 
 #import "SideslipViewController.h"
+#import <objc/runtime.h>
 
 static CGFloat TableViewWidthMultiplierValue = 0.6;
+static NSString * const SideslipTableViewCellIdentifier = @"SideslipTableViewCellIdentifier";
+static void * SideslipViewControllerKey = &SideslipViewControllerKey;
 
 typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
     SideslipTableViewScrollDirectionNotKnow,
     SideslipTableViewScrollDirectionVertical,
     SideslipTableViewScrollDirectionHorizontal
 };
+
+@interface SideslipTableViewCell : UITableViewCell
+
+@property (nonatomic, strong) UIImageView *iconView;
+@property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) UISwitch *sw;
+
+@end
 
 @interface SideslipTableView : UITableView <UIGestureRecognizerDelegate>
 
@@ -146,8 +157,71 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////
 
-- (void)showWithAnimated:(BOOL)animated completion:(void (^)(BOOL))completion {
++ (instancetype)showWithAnimated:(BOOL)animated completion:(void (^)(BOOL isShow))completion {
+    SideslipViewController *vc = objc_getAssociatedObject([UIApplication sharedApplication], SideslipViewControllerKey);
+    if (vc == nil) {
+        vc = [[SideslipViewController alloc] init];
+        objc_setAssociatedObject([UIApplication sharedApplication], SideslipViewControllerKey, vc, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    if (vc.view.superview) {
+        return vc;
+    }
+    [[UIApplication sharedApplication].delegate.window.rootViewController.view addSubview:vc.view];
+    vc.view.translatesAutoresizingMaskIntoConstraints = false;
     
+    CGFloat padding = 0;
+    
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(padding)-[viewController]-(padding)-|" options:kNilOptions metrics:@{@"padding": @(padding)} views:@{@"viewController": vc.view}]];
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[viewController]|" options:kNilOptions metrics:nil views:@{@"viewController": vc.view}]];
+    // 强制更新本次布局，以避免下次可能会在某个动画块中更新了
+    [vc.view layoutIfNeeded];
+    
+    [vc showWithAnimated:animated completion:^(BOOL isShow) {
+        if (completion) {
+            completion(isShow);
+        }
+        if (isShow == NO) {
+            [vc releaseSelf];
+        }
+    }];
+    
+    return vc;
+}
+
++ (void)dismissWithAnimated:(BOOL)animated completion:(void (^)(BOOL))completion {
+    SideslipViewController *vc = objc_getAssociatedObject([UIApplication sharedApplication], SideslipViewControllerKey);
+    if (vc == nil) {
+        return;
+    }
+    [vc dismissWithAnimated:animated completion:^(BOOL isShow) {
+        if (completion) {
+            completion(isShow);
+        }
+        if (isShow == NO) {
+            [vc releaseSelf];
+        }
+    }];
+}
+
+
+- (void)releaseSelf {
+    [self.view removeFromSuperview];
+    objc_setAssociatedObject([UIApplication sharedApplication], SideslipViewControllerKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (void)toggleWithAnimated:(BOOL)animated completion:(void (^)(BOOL isShow))completion {
+    if (self.isShow) {
+        [self dismissWithAnimated:animated completion:completion];
+    }
+    else {
+        [self showWithAnimated:animated completion:completion];
+    }
+}
+
+- (void)showWithAnimated:(BOOL)animated completion:(void (^)(BOOL))completion {
+    if (self.isShow) {
+        return;
+    }
     self.show = YES;
     self.animationComletionHandler = completion;
     // 执行此次layoutIfNeeded是为了防止下面的动画把所有的布局都执行了，会导致view从顶部开始出现的问题
@@ -172,6 +246,9 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
 }
 
 - (void)dismissWithAnimated:(BOOL)animated completion:(void (^)(BOOL))completion {
+    if (self.isShow == NO) {
+        return;
+    }
     self.show = NO;
     self.animationComletionHandler = completion;
     [self _updateConstraints];
@@ -262,8 +339,12 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
     return 20.0;
 }
 
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 50.0;
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"UITableViewCell" forIndexPath:indexPath];
+    SideslipTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:SideslipTableViewCellIdentifier forIndexPath:indexPath];
     
     return cell;
 }
@@ -284,7 +365,7 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
         _tableView = tableView;
         tableView.dataSource = self;
         tableView.delegate = self;
-        [tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"UITableViewCell"];
+        [tableView registerClass:[SideslipTableViewCell class] forCellReuseIdentifier:SideslipTableViewCellIdentifier];
     }
     return _tableView;
 }
@@ -403,3 +484,64 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
 }
 
 @end
+
+@implementation SideslipTableViewCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+        [self setupUI];
+    }
+    return self;
+}
+
+- (void)setupUI {
+    [self.contentView addSubview:self.iconView];
+    [self.contentView addSubview:self.titleLabel];
+    [self.contentView addSubview:self.sw];
+    self.iconView.translatesAutoresizingMaskIntoConstraints = false;
+    self.titleLabel.translatesAutoresizingMaskIntoConstraints = false;
+    self.sw.translatesAutoresizingMaskIntoConstraints = false;
+    
+    CGFloat margin = 16.0;
+    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(==margin)-[iconView]-(==margin)-[titleLabel]-(<=margin)-[sw]-(==margin)-|" options:NSLayoutFormatAlignAllCenterY metrics:@{@"margin": @(margin)} views:@{@"iconView": self.iconView, @"titleLabel": self.titleLabel, @"sw": self.sw}]];
+    [NSLayoutConstraint constraintWithItem:self.iconView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0.0].active = YES;
+    [NSLayoutConstraint constraintWithItem:self.iconView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeHeight multiplier:1.0 constant:-10.0].active = YES;
+    [NSLayoutConstraint constraintWithItem:self.iconView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.iconView attribute:NSLayoutAttributeHeight multiplier:1.0 constant:0.0].active = YES;
+    [self test];
+}
+
+- (void)test {
+    self.iconView.image = [UIImage imageNamed:@"icon_signal_weak"];
+    self.titleLabel.text = @"路况";
+}
+
+- (UIImageView *)iconView {
+    if (!_iconView) {
+        UIImageView *imageView = [UIImageView new];
+        _iconView = imageView;
+        imageView.contentMode = UIViewContentModeScaleAspectFit;
+    }
+    return _iconView;
+}
+
+- (UILabel *)titleLabel {
+    if (!_titleLabel) {
+        UILabel *label = [UILabel new];
+        label.numberOfLines = 1;
+        label.lineBreakMode = NSLineBreakByTruncatingTail;
+        _titleLabel = label;
+    }
+    return _titleLabel;
+}
+
+- (UISwitch *)sw {
+    if (!_sw) {
+        UISwitch *sw = [[UISwitch alloc] init];
+        _sw = sw;
+    }
+    return _sw;
+}
+
+@end
+
+

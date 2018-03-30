@@ -10,7 +10,6 @@
 #import "SideslipViewController.h"
 
 @interface SideslipExampleViewController ()
-@property (nonatomic, strong) SideslipViewController *viewController;
 @end
 
 @implementation SideslipExampleViewController
@@ -26,7 +25,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientation:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self.viewController showWithAnimated:YES completion:^(BOOL isShow) {
+        [SideslipViewController showWithAnimated:YES completion:^(BOOL isShow) {
             if (isShow) {
                 item2.title = @"dismiss";
             }
@@ -50,20 +49,14 @@
 
 
 - (void)setupViews {
-    [self.view addSubview:self.viewController.view];
-    self.viewController.view.translatesAutoresizingMaskIntoConstraints = false;
-    
-    CGFloat padding = 0;
-    
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-(padding)-[viewController]-(padding)-|" options:kNilOptions metrics:@{@"padding": @(padding)} views:@{@"viewController": self.viewController.view}]];
-    [NSLayoutConstraint activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[viewController]|" options:kNilOptions metrics:nil views:@{@"viewController": self.viewController.view}]];
     
 }
+
+
 - (void)toggle:(UIBarButtonItem *)item {
     if ([item.accessibilityIdentifier isEqualToString:@"second"]) {
         if ([item.title isEqualToString:@"dismiss"]) {
-            
-            [self.viewController dismissWithAnimated:YES completion:^(BOOL isShow) {
+            [SideslipViewController dismissWithAnimated:YES completion:^(BOOL isShow) {
                 if (isShow) {
                     item.title = @"dismiss";
                 }
@@ -71,10 +64,10 @@
                     item.title = @"show";
                 }
             }];
+
         }
         else {
-            
-            [self.viewController showWithAnimated:YES completion:^(BOOL isShow) {
+            [SideslipViewController showWithAnimated:YES completion:^(BOOL isShow) {
                 if (isShow) {
                     item.title = @"dismiss";
                 }
@@ -92,13 +85,6 @@
             [self.view layoutIfNeeded];
         }];
     });
-}
-
-- (SideslipViewController *)viewController {
-    if (!_viewController) {
-        _viewController = [[SideslipViewController alloc] init];
-    }
-    return _viewController;
 }
 
 @end
