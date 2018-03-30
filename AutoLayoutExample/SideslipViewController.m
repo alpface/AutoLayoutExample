@@ -18,7 +18,7 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
 
 @interface SideslipTableView : UITableView <UIGestureRecognizerDelegate>
 
-@property (nonatomic, copy) void (^ panGestureBlock)(UIPanGestureRecognizer *pan);
+@property (nonatomic, copy) void (^ sideslipPanGestureRecognizerBlock)(UIPanGestureRecognizer *pan);
 
 @end
 
@@ -74,7 +74,7 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
     [self.backgroundView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapOnBackgroundView:)]];
     [self.backgroundView addGestureRecognizer:[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureOnBackgroundView:)]];
     __weak typeof(self) weakSelf = self;
-    self.tableView.panGestureBlock = ^(UIPanGestureRecognizer *pan) {
+    self.tableView.sideslipPanGestureRecognizerBlock = ^(UIPanGestureRecognizer *pan) {
         [weakSelf panGestureOnBackgroundView:pan];
     };
 }
@@ -334,6 +334,9 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
     
 }
 
+/// 当手势开始时，根据手势开始移动时的偏移量，判断手指在scrollView上起始移动的方向；
+/// @note 如果是左右滑动时，此时应该只能响应我添加的滑动手势_sideslipPanGestureRecognizer， 那此时如果gestureRecognizer是scrollView自带的滑动手势时，则让自带的滑动手势不能响应，反之亦然
+/// @note 如果是上下滑动时，此时应该只能响应scrollView自带的滑动手势， 那此时如果gestureRecognizer是_sideslipPanGestureRecognizer时，则让我手动添加的手势不能响应，去响应scrollView自带滑动手势，反之亦然
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
     SideslipTableViewScrollDirection scrollDirection = [self scrollDirectionWithGestureRecognizer:gestureRecognizer];
     switch (scrollDirection) {
@@ -361,8 +364,8 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
     }
 }
 - (void)panGestureOnSelf:(UIPanGestureRecognizer *)pan {
-    if (self.panGestureBlock) {
-        self.panGestureBlock(pan);
+    if (self.sideslipPanGestureRecognizerBlock) {
+        self.sideslipPanGestureRecognizerBlock(pan);
     }
 }
 
