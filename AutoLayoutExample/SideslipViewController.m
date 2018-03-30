@@ -215,18 +215,21 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
             // 根据手指移动的偏移量，移动sideslipTableView
             CGFloat trailingConstant = self.tableViewTrailingConstraint.constant;
             trailingConstant += translation.x;
-            NSLog(@"%f", trailingConstant);
+//            NSLog(@"%f", trailingConstant);
             if (trailingConstant <= 0) {
                 return;
             }
             [self.view layoutIfNeeded];
+            CGFloat progress = trailingConstant / (self.view.frame.size.width * TableViewWidthMultiplierValue);
             self.tableViewTrailingConstraint.constant = trailingConstant;
             [UIView animateWithDuration:0.1 animations:^{
                 [self.view layoutIfNeeded];
             }];
             if (trailingConstant >= self.view.frame.size.width * TableViewWidthMultiplierValue) {
+                progress = 1.0;
                 [self dismissWithAnimated:YES completion:self.animationComletionHandler];
             }
+            [self updateSideslipProgress:progress];
             break;
         }
         case UIGestureRecognizerStateEnded:
@@ -242,6 +245,14 @@ typedef NS_ENUM(NSInteger, SideslipTableViewScrollDirection) {
             break;
     }
 
+}
+
+- (void)updateSideslipProgress:(CGFloat)progress {
+    
+//    CGFloat backgroundAlpha = self.backgroundView.alpha;
+//    backgroundAlpha = backgroundAlpha - backgroundAlpha * progress;
+//    self.backgroundView.alpha = backgroundAlpha;
+//    NSLog(@"backgroundAlpha:%f", backgroundAlpha);
 }
 
 ////////////////////////////////////////////////////////////////////////
