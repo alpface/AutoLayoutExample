@@ -61,7 +61,6 @@ static inline CGSize TextSize(NSString *text,
 - (instancetype)initWithIconImage:(UIImage *)iconImage
                             title:(NSString *)title
                        isSwitchOn:(BOOL)isSwitchOn
-                      clickAction:(void (^)(SideslipViewTableItem *item))clickAction
                 switchChangeBlock:(void (^)(BOOL isSwitchOn))switchChangeBlock;
 
 
@@ -104,39 +103,27 @@ static inline CGSize TextSize(NSString *text,
 - (void)initData {
     
     SideslipViewTableSection *section = [[SideslipViewTableSection alloc] init];
-    SideslipViewTableItem *item1 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"preference_3g4g"] title:@"Traffic info" isSwitchOn:NO clickAction:^(SideslipViewTableItem *item) {
-        
-    } switchChangeBlock:^(BOOL isSwitchOn) {
+    SideslipViewTableItem *item1 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"preference_3g4g"] title:@"Traffic info" isSwitchOn:NO switchChangeBlock:^(BOOL isSwitchOn) {
         
     }];
     [section.items addObject:item1];
-    SideslipViewTableItem *item2 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"preference_local_language"] title:@"Local names" isSwitchOn:NO clickAction:^(SideslipViewTableItem *item) {
-        
-    } switchChangeBlock:^(BOOL isSwitchOn) {
+    SideslipViewTableItem *item2 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"preference_local_language"] title:@"Local names" isSwitchOn:NO switchChangeBlock:^(BOOL isSwitchOn) {
         
     }];
     [section.items addObject:item2];
-    SideslipViewTableItem *item3 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"preference_boobuz_on_map"] title:@"Community" isSwitchOn:NO clickAction:^(SideslipViewTableItem *item) {
-        
-    } switchChangeBlock:^(BOOL isSwitchOn) {
+    SideslipViewTableItem *item3 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"preference_boobuz_on_map"] title:@"Community" isSwitchOn:NO switchChangeBlock:^(BOOL isSwitchOn) {
         
     }];
     [section.items addObject:item3];
-    SideslipViewTableItem *item4 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"icon_chat_experience"] title:@"Moments" isSwitchOn:NO clickAction:^(SideslipViewTableItem *item) {
-        
-    } switchChangeBlock:^(BOOL isSwitchOn) {
+    SideslipViewTableItem *item4 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"icon_chat_experience"] title:@"Moments" isSwitchOn:NO switchChangeBlock:^(BOOL isSwitchOn) {
         
     }];
     [section.items addObject:item4];
-    SideslipViewTableItem *item5 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"icon_chat_experience"] title:@"World maps moments" isSwitchOn:NO clickAction:^(SideslipViewTableItem *item) {
-        
-    } switchChangeBlock:^(BOOL isSwitchOn) {
+    SideslipViewTableItem *item5 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"icon_chat_experience"] title:@"World maps moments" isSwitchOn:NO switchChangeBlock:^(BOOL isSwitchOn) {
         
     }];
     [section.items addObject:item5];
-    SideslipViewTableItem *item6 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"icon_place_photo"] title:@"Places photos" isSwitchOn:NO clickAction:^(SideslipViewTableItem *item) {
-        
-    } switchChangeBlock:^(BOOL isSwitchOn) {
+    SideslipViewTableItem *item6 = [[SideslipViewTableItem alloc] initWithIconImage:[UIImage imageNamed:@"icon_place_photo"] title:@"Places photos" isSwitchOn:NO switchChangeBlock:^(BOOL isSwitchOn) {
         
     }];
     [section.items addObject:item6];
@@ -249,6 +236,12 @@ static inline CGSize TextSize(NSString *text,
     self.iconView.image = item.iconImage;
     self.titleLabel.text = item.title;
     self.sw.on = item.isSwitchOn;
+    __weak typeof(self) weakSelf = self;
+    item.clickAction = ^(SideslipViewTableItem *item) {
+        BOOL isOn = !weakSelf.sw.isOn;
+        item.isSwitchOn = isOn;
+        [weakSelf.sw setOn:isOn animated:YES];
+    };
 }
 
 - (UIImageView *)iconView {
@@ -432,13 +425,11 @@ static inline CGSize TextSize(NSString *text,
 - (instancetype)initWithIconImage:(UIImage *)iconImage
                             title:(NSString *)title
                        isSwitchOn:(BOOL)isSwitchOn
-                      clickAction:(void (^)(SideslipViewTableItem *item))clickAction
                 switchChangeBlock:(void (^)(BOOL))switchChangeBlock    {
     if (self = [super init]) {
         self.iconImage = iconImage;
         self.title = title;
         self.isSwitchOn = isSwitchOn;
-        self.clickAction = clickAction;
         self.switchChangeBlock = switchChangeBlock;
     }
     return self;
