@@ -11,6 +11,8 @@
 		D06A6A38205B8F7C0096304F /* NaviActionContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = D06A6A37205B8F7C0096304F /* NaviActionContentView.m */; };
 		D06A6A39205B91B30096304F /* NaviActionController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0AF177E2059163300D7A460 /* NaviActionController.m */; };
 		D06A6A3C205B93AB0096304F /* NaviViewController2.m in Sources */ = {isa = PBXBuildFile; fileRef = D06A6A3B205B93AB0096304F /* NaviViewController2.m */; };
+		D09742AE21142B1C004468D4 /* ButtonListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D09742AD21142B1C004468D4 /* ButtonListViewController.m */; };
+		D09742B121142B6D004468D4 /* TourSpecialRecommentCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D09742B021142B6D004468D4 /* TourSpecialRecommentCell.m */; };
 		D0A68506206DF1820014FE56 /* SideslipViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0A68505206DF1820014FE56 /* SideslipViewController.m */; };
 		D0A68509206DF6350014FE56 /* SideslipExampleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0A68508206DF6350014FE56 /* SideslipExampleViewController.m */; };
 		D0AF1768205915EF00D7A460 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D0AF1767205915EF00D7A460 /* AppDelegate.m */; };
@@ -32,6 +34,10 @@
 		D06A6A37205B8F7C0096304F /* NaviActionContentView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NaviActionContentView.m; sourceTree = "<group>"; };
 		D06A6A3A205B93AB0096304F /* NaviViewController2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NaviViewController2.h; sourceTree = "<group>"; };
 		D06A6A3B205B93AB0096304F /* NaviViewController2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NaviViewController2.m; sourceTree = "<group>"; };
+		D09742AC21142B1C004468D4 /* ButtonListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ButtonListViewController.h; sourceTree = "<group>"; };
+		D09742AD21142B1C004468D4 /* ButtonListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ButtonListViewController.m; sourceTree = "<group>"; };
+		D09742AF21142B6D004468D4 /* TourSpecialRecommentCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TourSpecialRecommentCell.h; sourceTree = "<group>"; };
+		D09742B021142B6D004468D4 /* TourSpecialRecommentCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TourSpecialRecommentCell.m; sourceTree = "<group>"; };
 		D0A68504206DF1820014FE56 /* SideslipViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SideslipViewController.h; sourceTree = "<group>"; };
 		D0A68505206DF1820014FE56 /* SideslipViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SideslipViewController.m; sourceTree = "<group>"; };
 		D0A68507206DF6350014FE56 /* SideslipExampleViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SideslipExampleViewController.h; sourceTree = "<group>"; };
@@ -125,6 +131,10 @@
 				D2EA88AB206E7F7D007165B7 /* MapLayerOptionViewController.m */,
 				D0A68507206DF6350014FE56 /* SideslipExampleViewController.h */,
 				D0A68508206DF6350014FE56 /* SideslipExampleViewController.m */,
+				D09742AC21142B1C004468D4 /* ButtonListViewController.h */,
+				D09742AD21142B1C004468D4 /* ButtonListViewController.m */,
+				D09742AF21142B6D004468D4 /* TourSpecialRecommentCell.h */,
+				D09742B021142B6D004468D4 /* TourSpecialRecommentCell.m */,
 			);
 			name = Example;
 			sourceTree = "<group>";
@@ -200,8 +210,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D09742AE21142B1C004468D4 /* ButtonListViewController.m in Sources */,
 				D0AF176B205915EF00D7A460 /* ViewController.m in Sources */,
 				D06A6A3C205B93AB0096304F /* NaviViewController2.m in Sources */,
+				D09742B121142B6D004468D4 /* TourSpecialRecommentCell.m in Sources */,
 				D0A68506206DF1820014FE56 /* SideslipViewController.m in Sources */,
 				D0AF1776205915EF00D7A460 /* main.m in Sources */,
 				D0AF1768205915EF00D7A460 /* AppDelegate.m in Sources */,

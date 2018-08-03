@@ -12,6 +12,7 @@
 #import "LabelViewController.h"
 #import "NaviViewController2.h"
 #import "SideslipExampleViewController.h"
+#import "ButtonListViewController.h"
 
 @interface AutoLayoutExampleItem : NSObject
 
@@ -43,6 +44,7 @@
                         [[AutoLayoutExampleItem alloc] initWithTitle:@"Drag" exampleClass:[DragViewController class]],
                         [[AutoLayoutExampleItem alloc] initWithTitle:@"Label" exampleClass:[LabelViewController class]],
                         [[AutoLayoutExampleItem alloc] initWithTitle:@"百度地图 图层" exampleClass:[SideslipExampleViewController class]],
+                        [[AutoLayoutExampleItem alloc] initWithTitle:@"button list" exampleClass:[ButtonListViewController class]],
                         ].mutableCopy;
     
     [self.tableView reloadData];
