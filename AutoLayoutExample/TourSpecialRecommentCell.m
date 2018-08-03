@@ -187,6 +187,10 @@ static CGFloat const BBGlobalMargin = 15.0;
     [NSLayoutConstraint deactivateConstraints:self.buttonConstraints];
     [self.buttonConstraints removeAllObjects];
     
+    if (self.cityButtonList.count == 0) {
+        return;
+    }
+    
     // 最大的列数
     NSInteger columnCount = self.model.maxColumnCount ?: 3;
     //NSInteger rowCount = ceil(self.cityButtonList.count/(CGFloat)columnCount);
